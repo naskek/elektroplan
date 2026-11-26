@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.8
+## Prototyp 0.1.9
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -62,3 +62,14 @@ Starší soubory zůstávají čitelné a jejich souřadnice se nemění. Plochy
 - **Zpět** (Ctrl+Z) vrací poslední dokončenou změnu, **Znovu** (Ctrl+Y nebo Ctrl+Shift+Z) ji obnoví. U rozpracované trasy nebo stěny lze vracet a obnovovat jednotlivé body. Historie zahrnuje přidávání, odstraňování, změny otvorů a kalibraci měřítka; uchovává nejvýše 100 dokončených změn v aktuální relaci. Nová dokončená změna po kroku zpět zruší větev opakování.
 - **Guma** (E): najeďte na prvek, červený náhled označí cíl, kliknutím jej odstraníte. Lze odstranit stěnu, jednotlivou stranu obdélníku, dveře, okno, popisek, ruční kótu, elektroinstalační prvek nebo kabelovou trasu. Při odstranění stěny se odstraní i její otvory a závislé ruční kóty. Ostatní strany obdélníku včetně jejich otvorů zůstávají zachovány. Celou operaci lze vrátit jedním krokem zpět.
 - Vybraný otvor lze odstranit také klávesou Delete. Při zadávání textu či čísla zůstávají zachovány obvyklé zkratky pro editaci textu. Historie není ukládána do projektového JSON; vytvoření nového projektu, otevření jiného projektu nebo výměna či otočení podkladu ji vymaže. Automatické kóty se přepočítávají, nemažou se jednotlivě gumou.
+
+## Pomocná vodítka (0.1.9)
+
+Nástroj **Vodítko** (G) slouží k přesnému vytyčení bodů pro další kreslení; **Kóta** zůstává měřicím nástrojem.
+
+1. Nakreslete například obvod 12 500 × 6 110 mm.
+2. Zvolte **Vodítko** a klikněte na horní roh. Zadejte vzdálenost 2550 mm a směr **Dolů**. Potvrďte klávesou Enter nebo tlačítkem **Vložit vodítko**.
+3. Zobrazí se vodorovná přerušovaná čára v přesné vzdálenosti 2550 mm od výchozího bodu. Nástrojem **Stěna** najeďte na průsečík vodítka se stávající stěnou. Bod přichycení se zvýrazní a má přednost před běžným krokem mřížky. Nakreslete novou stěnu nebo zadejte její délku.
+4. Další vodítka můžete vytvořit vodorovně i svisle v libovolné celočíselné vzdálenosti v milimetrech. Přichycení funguje také v průsečících vodítek.
+
+V části **Zobrazení a nastavení** lze vodítka skrýt (současně vypnout přichycení k nim) nebo hromadně odstranit. Jednotlivá vodítka lze odstranit gumou či ve výkazu. Vložení a odstranění je součástí historie změn. Vodítka nejsou stěny, nevytvářejí místnosti a nezapočítávají se do ploch, obvodů, elektroinstalačních prvků ani kabelů. Formát projektu 5 ukládá vodítka a jejich viditelnost; starší projekty lze nadále otevřít. Vodítka jsou zatím dostupná pouze v ručně kresleném půdorysu. Jejich poloha je pevná, nikoli parametricky závislá na pozdějších úpravách stěn.
