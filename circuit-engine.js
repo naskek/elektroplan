@@ -20,7 +20,7 @@ const CircuitEngine=(()=>{
   for(const a of appliances)if(compatible(a,map.get(a.connectionPointId))){used.set(a.connectionPointId,(used.get(a.connectionPointId)||0)+1);if(isDedicated(a))reserved.add(a.connectionPointId)}
   const assigned=new Map();
   // Dřívější návrh bez bodu lze doplnit, aniž by vznikl další okruh.
-  for(const c of retained){if(coverage(c,items).routes.length||c.pointIds.length||c.applianceIds.length!==1)continue;const a=map.get(c.applianceIds[0]);if(!a)continue;
+  for(const c of retained){if(settings.demandOnly||coverage(c,items).routes.length||c.pointIds.length||c.applianceIds.length!==1)continue;const a=map.get(c.applianceIds[0]);if(!a)continue;
    const accepts=q=>{
     if(!compatible(a,q)||pointKind(q)!==c.kind)return false;
     const owner=retained.find(x=>x.id===pointOwners.get(q.id));if(!owner)return true;
@@ -37,7 +37,7 @@ const CircuitEngine=(()=>{
   for(const a of appliances){
    if(applianceOwners.has(a.id)||assigned.has(a.id))continue;
    if(compatible(a,map.get(a.connectionPointId))){assigned.set(a.id,a.connectionPointId);continue}
-   if(a.connectionPointId!=null||roomOf(a)==null)continue;
+   if(settings.demandOnly||a.connectionPointId!=null||roomOf(a)==null)continue;
    const candidates=items.filter(p=>{
      if(!compatible(a,p)||reserved.has(p.id)||roomOf(p)!==roomOf(a)||(used.get(p.id)||0)>=capacity(p))return false;
      const owner=retained.find(c=>c.id===pointOwners.get(p.id));
@@ -64,7 +64,11 @@ const CircuitEngine=(()=>{
     if(kind==='socket'&&batch.length&&(n+count>10||w+watts>settings.ln*16))flush();batch.push(p);n+=count;w+=watts}
    flush();
   }
-  for(const a of appliances)if(!applianceOwners.has(a.id)&&!assigned.has(a.id)){create(applianceKind(a),a.name+' – chybí připojení',[],[a.id]);}
+  for(const a of appliances)if(!applianceOwners.has(a.id)&&!assigned.has(a.id)){
+   const kind=applianceKind(a),room=roomOf(a);
+   const target=settings.demandOnly&&!isDedicated(a)&&room!=null?groups.find(c=>c.kind===kind&&!c.applianceIds.some(id=>isDedicated(map.get(id)))&&!c.pointIds.some(id=>reserved.has(id)||(byPoint.get(id)||[]).some(isDedicated))&&roomOf(map.get(c.pointIds[0]??c.applianceIds[0]))===room&&[...c.applianceIds.map(id=>map.get(id)),...c.pointIds.flatMap(id=>byPoint.get(id)||[])].reduce((n,x)=>n+power(x),0)+power(a)<=settings.ln*16):null;
+   if(target)target.applianceIds.push(a.id);else create(kind,a.name+(settings.demandOnly?' – potřeba místnosti':' – chybí připojení'),[],[a.id]);
+  }
   return {circuits:[...retained.filter(c=>!retired.some(r=>r.id===c.id)),...groups],added:groups,updated,retired,links,lastId:seq};
  }
  function coverage(c,items){const routes=items.filter(r=>r.type==='route'&&r.circuit&&routePlanId(r)===c.id),ids=new Set(routes.flatMap(connectedIds));return {routes,done:c.pointIds.filter(id=>ids.has(id)),remaining:c.pointIds.filter(id=>!ids.has(id))}}
