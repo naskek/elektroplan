@@ -38,4 +38,10 @@ test('Nerovnoměrné 2N větve lze automaticky prohodit mezi fázemi',()=>{
  ],{...s,mainA:30});
  b.phaseA.forEach(a=>close(a,30));
 });
+test('Nerovnoměrné 3N větve lze automaticky přiřadit v jiném pořadí',()=>{
+ const list=[appliance(1,'custom',null,{powerW:3450,phases:[0]}),appliance(2,'custom',null,{powerW:1150,phases:[1]}),appliance(3,'custom',null,{powerW:2300,phases:[2]}),appliance(4,'ev',null,{powerW:6900,branchW:[3450,2300,1150]})];
+ const b=E.aggregate(list,{...s,mainA:20});b.phaseA.forEach(a=>close(a,20));
+ const locked=E.aggregate(list.map(a=>a.id===4?{...a,phases:[0,1,2]}:a),{...s,mainA:20});
+ assert.deepEqual(Array.from(locked.groups.find(g=>g.id==='a:4').phases),[0,1,2]);assert.ok(locked.phaseA[0]>20);
+});
 console.log(n+' testů prošlo.');

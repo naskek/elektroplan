@@ -2,6 +2,18 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
+## Aktuální verze 0.2.1 – stabilizace
+
+Opraveno vyvažování nerovnoměrných větví 2N/3N, doplňování připojení spotřebičů v již navržených okruzích, uchování vlastního typu kabelu a ochrana rozpracované kresby při změně nástroje. Výpočet a rozvaděč již nemají dvě shodné sady tlačítek. Formát projektu zůstává JSON v15. Nejde o ověřený projekt elektroinstalace.
+
+Dokončené prvky se automaticky ukládají do IndexedDB tohoto prohlížeče. Nedokončené prvky a trasy jsou pouze v paměti; export, opuštění stránky a změna nástroje před jejich ztrátou varují. JSON je přenosná záloha. Starší oddíly níže popisují vývoj prototypu; aktuální ověření a jeho hranice jsou v [záznamu stabilizace](STABILIZATION.md).
+
+### Regresní testy
+
+`npm ci` a `npm test` spustí testy výpočtového jádra. `npm run test:e2e` spustí skutečný Chrome nad lokální aplikací; Chrome musí být nainstalován. Alternativně nainstalujte prohlížeč příkazem `npx playwright install chromium` a nastavte proměnnou prostředí `PLAYWRIGHT_CHANNEL=chromium`. Testovací server používá pouze `127.0.0.1:4173` a zpřístupňuje jen tři soubory aplikace.
+
+Veřejné testovací projekty mají umělou geometrii. Volitelný test soukromého projektu se zapne proměnnou `ELEKTROPLAN_PRIVATE_PROJECT` s cestou k vlastnímu JSON; soubor patří do ignorované složky `.private/` nebo mimo repozitář. Výsledky a stopy prohlížeče jsou také ignorovány. GitHub Actions spouští jádro a veřejné E2E při změně kódu.
+
 ## Prototyp 0.1.18
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
