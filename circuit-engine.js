@@ -13,22 +13,29 @@ const CircuitEngine=(()=>{
  function migrate(items){return items.filter(r=>r.type==='route'&&r.circuit).map(r=>({id:routePlanId(r),kind:r.kind,name:'Původní okruh '+mark({id:routePlanId(r),kind:r.kind}),panelId:r.points[0]?.componentId??null,pointIds:connectedIds(r).slice(1),applianceIds:[],cable:r.cable}));}
  function propose(items,existing,lastId,roomOf=()=>null,roomName=()=> 'Nezařazeno',settings={ln:230}){
   const map=new Map(items.map(a=>[a.id,a])),pointOwners=new Map(),applianceOwners=new Set(),used=new Map(),links=[],groups=[],panels=items.filter(a=>a.type==='panel');
-  let seq=lastId;
-  for(const c of existing){for(const id of c.pointIds)pointOwners.set(id,c.id);for(const id of c.applianceIds)applianceOwners.add(id)}
-  const appliances=items.filter(a=>a.type==='appliance');
-  for(const a of appliances)if(compatible(a,map.get(a.connectionPointId)))used.set(a.connectionPointId,(used.get(a.connectionPointId)||0)+1);
+  let seq=lastId,updated=0;
+  const retained=existing.map(c=>({...c,pointIds:[...c.pointIds],applianceIds:[...c.applianceIds]})),reserved=new Set();
+  for(const c of retained){for(const id of c.pointIds)pointOwners.set(id,c.id);for(const id of c.applianceIds)applianceOwners.add(id)}
+  const appliances=items.filter(a=>a.type==='appliance').sort((a,b)=>Number(isDedicated(b))-Number(isDedicated(a))||a.id-b.id);
+  for(const a of appliances)if(compatible(a,map.get(a.connectionPointId))){used.set(a.connectionPointId,(used.get(a.connectionPointId)||0)+1);if(isDedicated(a))reserved.add(a.connectionPointId)}
   const assigned=new Map();
+  // Dřívější návrh bez bodu lze doplnit, aniž by vznikl další okruh.
+  for(const c of retained){if(coverage(c,items).routes.length||c.pointIds.length||c.applianceIds.length!==1)continue;const a=map.get(c.applianceIds[0]);if(!a)continue;
+   let p=map.get(a.connectionPointId);if(!compatible(a,p)||pointOwners.has(p.id))p=null;
+   if(!p&&a.connectionPointId==null&&roomOf(a)!=null){const options=items.filter(q=>compatible(a,q)&&pointKind(q)===c.kind&&!pointOwners.has(q.id)&&!used.get(q.id)&&roomOf(q)===roomOf(a)).sort((q,z)=>Math.hypot(q.p.x-a.p.x,q.p.y-a.p.y)-Math.hypot(z.p.x-a.p.x,z.p.y-a.p.y)||q.id-z.id);p=options[0];if(p){links.push({applianceId:a.id,pointId:p.id});used.set(p.id,1)}}
+   if(p&&pointKind(p)===c.kind){c.pointIds.push(p.id);c.applianceIds=[];pointOwners.set(p.id,c.id);assigned.set(a.id,p.id);if(isDedicated(a))reserved.add(p.id);updated++}
+  }
   // Navrhovat pouze volné body ve stejné jednoznačně určené místnosti.
   for(const a of appliances){
-   if(applianceOwners.has(a.id))continue;
+   if(applianceOwners.has(a.id)||assigned.has(a.id))continue;
    if(compatible(a,map.get(a.connectionPointId))){assigned.set(a.id,a.connectionPointId);continue}
    if(a.connectionPointId!=null||roomOf(a)==null)continue;
-   const candidates=items.filter(p=>compatible(a,p)&&!pointOwners.has(p.id)&&roomOf(p)===roomOf(a)&&(used.get(p.id)||0)<capacity(p)&&(!isDedicated(a)||!used.get(p.id)));
+   const candidates=items.filter(p=>compatible(a,p)&&!pointOwners.has(p.id)&&!reserved.has(p.id)&&roomOf(p)===roomOf(a)&&(used.get(p.id)||0)<capacity(p)&&(!isDedicated(a)||!used.get(p.id)));
    candidates.sort((p,q)=>Math.hypot(p.p.x-a.p.x,p.p.y-a.p.y)-Math.hypot(q.p.x-a.p.x,q.p.y-a.p.y)||p.id-q.id);
-   if(candidates.length){const p=candidates[0];assigned.set(a.id,p.id);used.set(p.id,(used.get(p.id)||0)+1);links.push({applianceId:a.id,pointId:p.id})}
+   if(candidates.length){const p=candidates[0];assigned.set(a.id,p.id);used.set(p.id,(used.get(p.id)||0)+1);links.push({applianceId:a.id,pointId:p.id});if(isDedicated(a))reserved.add(p.id)}
   }
   const byPoint=new Map();for(const a of appliances){const id=assigned.get(a.id);if(id!=null){if(!byPoint.has(id))byPoint.set(id,[]);byPoint.get(id).push(a)}}
-  function create(kind,name,pointIds=[],applianceIds=[],cable='Neurčený'){const c={id:++seq,kind,name,panelId:panels.length===1?panels[0].id:null,pointIds,applianceIds,cable};groups.push(c);return c}
+  function create(kind,name,pointIds=[],applianceIds=[],cable=kind==='lighting'?'CYKY-J 3×1,5':kind==='socket'?'CYKY-J 3×2,5':'Neurčený'){const c={id:++seq,kind,name:name.slice(0,160),panelId:panels.length===1?panels[0].id:null,pointIds,applianceIds,cable};groups.push(c);return c}
   const buckets=new Map(),addBucket=(kind,room,p)=>{const key=kind+':'+room;if(!buckets.has(key))buckets.set(key,{kind,room,points:[]});buckets.get(key).points.push(p)};
   for(const p of items){
    const kind=pointKind(p);if(!kind||pointOwners.has(p.id))continue;
@@ -44,7 +51,7 @@ const CircuitEngine=(()=>{
    flush();
   }
   for(const a of appliances)if(!applianceOwners.has(a.id)&&!assigned.has(a.id)){create(applianceKind(a),a.name+' – chybí připojení',[],[a.id]);}
-  return {circuits:[...existing,...groups],added:groups,links,lastId:seq};
+  return {circuits:[...retained,...groups],added:groups,updated,links,lastId:seq};
  }
  function coverage(c,items){const routes=items.filter(r=>r.type==='route'&&r.circuit&&routePlanId(r)===c.id),ids=new Set(routes.flatMap(connectedIds));return {routes,done:c.pointIds.filter(id=>ids.has(id)),remaining:c.pointIds.filter(id=>!ids.has(id))}}
  function validate(circuits,items){
