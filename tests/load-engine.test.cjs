@@ -29,4 +29,13 @@ test('Světlo zahrnuto',()=>{const b=E.aggregate([{id:1,type:'light',watts:30}],
 test('Neznámé světlo',()=>assert.ok(E.aggregate([{id:1,type:'light'}],s).incomplete));
 test('Stejný vstup, stejný výsledek',()=>assert.equal(JSON.stringify(E.aggregate(multi,s)),JSON.stringify(E.aggregate(multi,s))));
 test('Platná a neplatná data',()=>{assert.ok(E.validAppliance(E.makeAppliance('fridge')));assert.ok(!E.validAppliance({...base,phases:[0,1]}));assert.ok(!E.validSettings({...s,mainA:0}))});
+test('Nerovnoměrné 2N větve lze automaticky prohodit mezi fázemi',()=>{
+ const b=E.aggregate([
+  appliance(1,'custom',null,{powerW:4600,phases:[0]}),
+  appliance(2,'custom',null,{powerW:2300,phases:[1]}),
+  appliance(3,'custom',null,{powerW:6900,phases:[2]}),
+  appliance(4,'hob',null,{powerW:6900,branchW:[4600,2300]})
+ ],{...s,mainA:30});
+ b.phaseA.forEach(a=>close(a,30));
+});
 console.log(n+' testů prošlo.');

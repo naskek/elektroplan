@@ -24,7 +24,7 @@ const templates=[
 const defaults=()=>({phaseCount:3,ln:230,ll:400,mainA:25,earthing:'unknown',confirmed:false,freeSocketW:1500,demandFactor:1,scenario:'all',assignments:{}});
 const num=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
 const optional=(v,min,max)=>v==null||num(v,min,max);
-const choices=(n,count)=>{const out=[];function go(a,start){if(a.length===n){out.push(a);return}for(let i=start;i<count;i++)go([...a,i],i+1)}go([],0);return out};
+const choices=(n,count,ordered=false)=>{const out=[];function go(a,start){if(a.length===n){out.push(a);return}for(let i=ordered?0:start;i<count;i++)if(!a.includes(i))go([...a,i],i+1)}go([],0);return out};
 const validPhases=(p,n=3)=>Array.isArray(p)&&p.length<=n&&p.every(x=>Number.isInteger(x)&&x>=0&&x<n)&&new Set(p).size===p.length;
 function validSettings(s){return !!s&&[1,3].includes(s.phaseCount)&&num(s.ln,100,300)&&num(s.ll,100,500)&&num(s.mainA,1,1000)&&['unknown','TN-C','TN-S','TN-C-S','TT','IT'].includes(s.earthing)&&typeof s.confirmed==='boolean'&&num(s.freeSocketW,0,100000)&&(s.demandFactor===undefined||num(s.demandFactor,0,1))&&['all','cooking','laundry','heating'].includes(s.scenario)&&s.assignments&&typeof s.assignments==='object'&&!Array.isArray(s.assignments)&&Object.entries(s.assignments).every(([k,v])=>/^[rap]:\d+$/.test(k)&&validPhases(v,3)&&v.length>0)}
 function validAppliance(a){const n=modes[a.mode];return !!n&&templates.some(t=>t[0]===a.template)&&typeof a.name==='string'&&a.name.trim().length>0&&a.name.length<=80&&['socket','fixed'].includes(a.connectionType)&&['template','estimate','nameplate'].includes(a.source)&&['auto','requested','confirmed'].includes(a.dedicated)&&optional(a.powerW,0.01,1000000)&&optional(a.pf,.01,1)&&optional(a.limitW,.01,1000000)&&optional(a.startA,.01,10000)&&optional(a.area,.01,100000)&&optional(a.density,.01,100000)&&optional(a.connectionPointId,1,Number.MAX_SAFE_INTEGER)&&(a.connectionPointId==null||Number.isSafeInteger(a.connectionPointId))&&(a.branchW==null||(Array.isArray(a.branchW)&&a.branchW.length===n&&a.branchW.every(v=>num(v,0,1000000))&&['1N','2N','3N'].includes(a.mode)))&&(a.nameplateA==null||(Array.isArray(a.nameplateA)&&a.nameplateA.length===n&&a.nameplateA.every(v=>num(v,0,10000))))&&validPhases(a.phases)&&(!a.phases.length||a.phases.length===n)&&a.factors&&['cooking','laundry','heating'].every(k=>num(a.factors[k],0,1))}
@@ -95,7 +95,9 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null,circuits=
   g.n=Math.max(1,...g.loads.map(a=>a.n));const ns=new Set(g.loads.map(a=>a.n));if(ns.size>1)add(g,'error','Smíšený počet fází v okruhu; vyžaduje ověření zapojení.');
   const locks=[s.assignments[g.id],...g.loads.map(a=>a.locked)].filter(a=>a?.length);
   const locked=locks[0],conflict=locks.some(a=>a.join(',')!==locked.join(','));if(conflict)add(g,'error','Konflikt pevných fází.');
-  g.candidates=conflict||ns.size>1?[]:locked?[locked]:choices(g.n,s.phaseCount);
+  // Nerovnoměrné větve mají i pořadí: L2+L1 není totéž co L1+L2.
+  const asymmetric=g.loads.some(a=>a.currents?.some(v=>Math.abs(v-a.currents[0])>1e-9));
+  g.candidates=conflict||ns.size>1?[]:locked?[locked]:choices(g.n,s.phaseCount,asymmetric);
   g.candidates=g.candidates.filter(p=>p.length===g.n&&validPhases(p,s.phaseCount));
   if(!g.candidates.length)add(g,'error','Není přípustná kombinace fází.');
   g.candidates=g.candidates.map(p=>({phases:p,amps:phases.map((_,i)=>g.loads.reduce((n,a)=>{const k=p.indexOf(i);return n+(k>=0?(a.currents?.[k]??0):0)},0))}));
