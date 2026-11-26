@@ -26,4 +26,19 @@ test('Pět kabelů v jedné drážce',()=>{const r=C.sharedSegments(Array.from({
 test('Částečný souběh a opačný směr',()=>{const r=C.sharedSegments([route(1,[[0,0],[8,0]]),route(2,[[6,0],[2,0]])]);assert.equal(r.unique,8);assert.equal(r.shared,4);assert.equal(r.parts.length,3)});
 test('Křížení není souběh',()=>{const r=C.sharedSegments([route(1,[[0,0],[8,0]]),route(2,[[4,-4],[4,4]])]);assert.equal(r.unique,16);assert.equal(r.shared,0)});
 test('Výpočet nemění geometrii',()=>{const rs=[route(1,[[0,0],[8,0]]),route(2,[[6,0],[2,0]])],before=JSON.stringify(rs);C.sharedSegments(rs);assert.equal(JSON.stringify(rs),before)});
+test('Opakovaný návrh připojí spotřebič k již navržené zásuvce',()=>{
+ const a=app(2,'fridge',10,10),first=propose([panel,a]),socket=point(4,'socket',10,12);
+ const old={id:5,kind:'socket',name:'Zásuvky',panelId:1,pointIds:[4],applianceIds:[],cable:'CYKY'};
+ const r=propose([panel,a,socket],[...first.circuits,old],5);
+ assert.equal(r.links[0].pointId,4);assert.equal(r.circuits.length,1);assert.equal(r.circuits[0].id,5);assert.equal(r.retired[0].targetId,5);
+ const linked=[panel,{...a,connectionPointId:4},socket];assert.equal(C.validate(r.circuits,linked),null);
+ assert.equal(propose(linked,r.circuits,r.lastId).circuits.length,1);
+ assert.equal(L.aggregate(linked,settings,()=>40,()=>null,r.circuits).designW,150);
+});
+test('Opakovaný návrh nesloučí odlišné fixace fází',()=>{
+ const a=app(2,'fridge',10,10),first=propose([panel,a]),socket=point(4,'socket',10,12);
+ const old={id:5,kind:'socket',name:'Zásuvky',panelId:1,pointIds:[4],applianceIds:[],cable:'CYKY'};
+ const r=C.propose([panel,a,socket],[...first.circuits,old],5,roomOf,roomName,{...settings,assignments:{['r:'+first.circuits[0].id]:[0],'r:5':[1]}});
+ assert.equal(r.links.length,0);assert.equal(r.circuits.length,2);
+});
 console.log(n+' testů okruhů prošlo.');

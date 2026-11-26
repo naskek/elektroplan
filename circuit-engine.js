@@ -13,7 +13,7 @@ const CircuitEngine=(()=>{
  function migrate(items){return items.filter(r=>r.type==='route'&&r.circuit).map(r=>({id:routePlanId(r),kind:r.kind,name:'Původní okruh '+mark({id:routePlanId(r),kind:r.kind}),panelId:r.points[0]?.componentId??null,pointIds:connectedIds(r).slice(1),applianceIds:[],cable:r.cable}));}
  function propose(items,existing,lastId,roomOf=()=>null,roomName=()=> 'Nezařazeno',settings={ln:230}){
   const map=new Map(items.map(a=>[a.id,a])),pointOwners=new Map(),applianceOwners=new Set(),used=new Map(),links=[],groups=[],panels=items.filter(a=>a.type==='panel');
-  let seq=lastId,updated=0;
+  let seq=lastId,updated=0;const retired=[];
   const retained=existing.map(c=>({...c,pointIds:[...c.pointIds],applianceIds:[...c.applianceIds]})),reserved=new Set();
   for(const c of retained){for(const id of c.pointIds)pointOwners.set(id,c.id);for(const id of c.applianceIds)applianceOwners.add(id)}
   const appliances=items.filter(a=>a.type==='appliance').sort((a,b)=>Number(isDedicated(b))-Number(isDedicated(a))||a.id-b.id);
@@ -21,9 +21,17 @@ const CircuitEngine=(()=>{
   const assigned=new Map();
   // Dřívější návrh bez bodu lze doplnit, aniž by vznikl další okruh.
   for(const c of retained){if(coverage(c,items).routes.length||c.pointIds.length||c.applianceIds.length!==1)continue;const a=map.get(c.applianceIds[0]);if(!a)continue;
-   let p=map.get(a.connectionPointId);if(!compatible(a,p)||pointOwners.has(p.id))p=null;
-   if(!p&&a.connectionPointId==null&&roomOf(a)!=null){const options=items.filter(q=>compatible(a,q)&&pointKind(q)===c.kind&&!pointOwners.has(q.id)&&!used.get(q.id)&&roomOf(q)===roomOf(a)).sort((q,z)=>Math.hypot(q.p.x-a.p.x,q.p.y-a.p.y)-Math.hypot(z.p.x-a.p.x,z.p.y-a.p.y)||q.id-z.id);p=options[0];if(p){links.push({applianceId:a.id,pointId:p.id});used.set(p.id,1)}}
-   if(p&&pointKind(p)===c.kind){c.pointIds.push(p.id);c.applianceIds=[];pointOwners.set(p.id,c.id);assigned.set(a.id,p.id);if(isDedicated(a))reserved.add(p.id);updated++}
+   const accepts=q=>{
+    if(!compatible(a,q)||pointKind(q)!==c.kind)return false;
+    const owner=retained.find(x=>x.id===pointOwners.get(q.id));if(!owner)return true;
+    if(owner.kind!==c.kind||c.panelId!=null&&owner.panelId!=null&&c.panelId!==owner.panelId)return false;
+    if(isDedicated(a)&&owner.pointIds.length!==1)return false;
+    const from=settings.assignments?.['r:'+c.id],to=settings.assignments?.['r:'+owner.id];
+    return !from||!to||from.join(',')===to.join(',');
+   };
+   let p=map.get(a.connectionPointId);if(!accepts(p))p=null;
+   if(!p&&a.connectionPointId==null&&roomOf(a)!=null){const options=items.filter(q=>accepts(q)&&!used.get(q.id)&&roomOf(q)===roomOf(a)).sort((q,z)=>Math.hypot(q.p.x-a.p.x,q.p.y-a.p.y)-Math.hypot(z.p.x-a.p.x,z.p.y-a.p.y)||q.id-z.id);p=options[0];if(p){links.push({applianceId:a.id,pointId:p.id});used.set(p.id,1)}}
+   if(p){const owner=pointOwners.get(p.id);if(owner!=null)retired.push({id:c.id,targetId:owner});else{c.pointIds.push(p.id);pointOwners.set(p.id,c.id)}c.applianceIds=[];assigned.set(a.id,p.id);if(isDedicated(a))reserved.add(p.id);updated++}
   }
   // Navrhovat pouze volné body ve stejné jednoznačně určené místnosti.
   for(const a of appliances){
@@ -57,7 +65,7 @@ const CircuitEngine=(()=>{
    flush();
   }
   for(const a of appliances)if(!applianceOwners.has(a.id)&&!assigned.has(a.id)){create(applianceKind(a),a.name+' – chybí připojení',[],[a.id]);}
-  return {circuits:[...retained,...groups],added:groups,updated,links,lastId:seq};
+  return {circuits:[...retained.filter(c=>!retired.some(r=>r.id===c.id)),...groups],added:groups,updated,retired,links,lastId:seq};
  }
  function coverage(c,items){const routes=items.filter(r=>r.type==='route'&&r.circuit&&routePlanId(r)===c.id),ids=new Set(routes.flatMap(connectedIds));return {routes,done:c.pointIds.filter(id=>ids.has(id)),remaining:c.pointIds.filter(id=>!ids.has(id))}}
  function validate(circuits,items){
