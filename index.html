@@ -364,6 +364,10 @@ function guideSnap(p,list,tol,grid){
 function choosePoint(p,t){
   const tol=snapTolerance(),grid=snapped(p),enabled=$('snapNodes').checked;
   const relevant=['wall','room','dimension','guide','route','name',...symbolTypes].includes(t);
+  if(t==='route'&&enabled){
+    const points=items.filter(a=>symbolTypes.includes(a.type)&&itemVisible(a)).map(a=>a.p);
+    const hit=points.map(q=>({p:q,ref:null,d:dist(p,q)})).filter(q=>q.d<=tol).sort((a,b)=>a.d-b.d)[0];if(hit)return hit;
+  }
   const endpoint=enabled&&relevant?bestSnap(p,items,tol,false):null;
   // Skutečné konce mají přednost; průsečíky vodítek mají přednost před volnou projekcí na stěnu.
   if(endpoint&&endpoint.d<=tol*.4)return endpoint;
