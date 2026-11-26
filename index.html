@@ -1355,9 +1355,9 @@ $('closeCircuits').onclick=()=>$('circuitDialog').close();
 $('proposeCircuits').onclick=()=>{
  const segs=segments(items),resolver=connectionRoomResolver(manual?roomAreas(segs):null,segs,items);
  const p=CircuitEngine.propose(items,circuits,seq,resolver.roomOf,resolver.name,loadSettings);
- if(!p.added.length&&!p.links.length){message('Žádné nové nezařazené prvky.');return}
+ if(!p.added.length&&!p.links.length&&!p.updated){message('Žádné nové nezařazené prvky.');return}
  const linkText=p.links.map(l=>(items.find(a=>a.id===l.applianceId)?.name||l.applianceId)+' → '+elementMark(items.find(a=>a.id===l.pointId))).join('\n');
- if(!confirm('Přidat '+p.added.length+' návrhů okruhů a '+p.links.length+' návrhů připojení spotřebičů? Stávající okruhy zůstanou.'+(linkText?'\n\nNavržené vazby (ověřte):\n'+linkText:'')))return;
+ if(!confirm('Přidat '+p.added.length+' návrhů okruhů, doplnit '+p.updated+' existujících a vytvořit '+p.links.length+' vazeb spotřebičů? Stávající okruhy zůstanou.'+(linkText?'\n\nNavržené vazby (ověřte):\n'+linkText:'')))return;
  const next=items.map(a=>{const l=p.links.find(x=>x.applianceId===a.id);return l?{...a,connectionPointId:l.pointId}:a});
  const err=CircuitEngine.validate(p.circuits,next);if(err){message(err);return}recordChange();items=next;circuits=p.circuits;seq=p.lastId;render();message('Návrh vytvořen. Ověřte přiřazení a zatížení.');
 };
