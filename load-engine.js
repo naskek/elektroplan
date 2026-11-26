@@ -53,20 +53,29 @@ function calculate(a,s){
 }
 const socketTypes=['socket','socket2','socket3','socket400','outlet'];
 const slots=a=>a.type==='socket2'?2:a.type==='socket3'?3:1;
-function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null){
- const map=new Map(items.map(a=>[a.id,a])),groups=[],byPoint=new Map(),diag=[],used=new Map();
+function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null,circuits=null){
+ const map=new Map(items.map(a=>[a.id,a])),groups=[],byPoint=new Map(),byAppliance=new Map(),diag=[],used=new Map();
  const add=(g,level,msg,id=null)=>{const d={level,msg,id,group:g?.id??null};diag.push(d);if(g)g.diagnostics.push(d)};
  const newGroup=(id,route=null)=>{const g={id,routeId:route?.id??null,panelId:route?.points[0]?.componentId??null,name:route?'Okruh '+route.id:'Nezařazená zátěž '+id,kind:route?.kind??'unassigned',pointIds:[],applianceIds:[],loads:[],diagnostics:[],cable:route?.cable??null,lengthM:route?length(route):null};groups.push(g);return g};
- for(const r of items.filter(a=>a.type==='route'&&a.circuit)){const g=newGroup('r:'+r.id,r);g.pointIds=[...new Set(r.points.map(p=>p.componentId).filter(x=>x!=null))].filter(id=>map.get(id)?.type!=='panel');for(const id of g.pointIds)byPoint.set(id,g)}
+ if(circuits!==null){
+  for(const c of circuits){const rs=items.filter(r=>r.type==='route'&&r.circuit&&(r.circuitId??r.id)===c.id),g=newGroup('r:'+c.id,rs[0]||null);
+   g.circuitId=c.id;g.name=c.name;g.kind=c.kind;g.panelId=c.panelId;g.cable=c.cable;g.routeIds=rs.map(r=>r.id);g.lengthM=rs.length?rs.reduce((n,r)=>n+(length(r)??0),0):null;g.pointIds=c.pointIds.slice();
+   for(const id of g.pointIds)byPoint.set(id,g);for(const id of c.applianceIds)byAppliance.set(id,g);
+   const done=new Set(rs.flatMap(r=>r.points.map(p=>p.componentId)));g.remainingPointIds=g.pointIds.filter(id=>!done.has(id));
+   if(g.remainingPointIds.length)add(g,'missing','Okruh ještě nemá úplnou trasu.');
+   if(c.panelId==null)add(g,'missing','Chybí rozvaděč okruhu.');
+  }
+ }else for(const r of items.filter(a=>a.type==='route'&&a.circuit)){const g=newGroup('r:'+r.id,r);g.pointIds=[...new Set(r.points.map(p=>p.componentId).filter(x=>x!=null))].filter(id=>map.get(id)?.type!=='panel');for(const id of g.pointIds)byPoint.set(id,g)}
  function groupForPoint(p){if(byPoint.has(p.id))return byPoint.get(p.id);const g=newGroup('p:'+p.id);g.pointIds=[p.id];byPoint.set(p.id,g);add(g,'missing','Bod není přiřazen k okruhu.',p.id);return g}
  for(const a of items.filter(a=>a.type==='appliance')){
   const p=map.get(a.connectionPointId),compatible=p&&socketTypes.includes(p.type)&&(a.connectionType==='fixed'?p.type==='outlet':p.type!=='outlet');
-  const g=compatible?groupForPoint(p):newGroup('a:'+a.id);g.applianceIds.push(a.id);
+  const planned=byAppliance.get(a.id),g=compatible?groupForPoint(p):planned||newGroup('a:'+a.id);g.applianceIds.push(a.id);
+  if(planned&&planned!==g)add(g,'warning','Spotřebič je připojen do jiného okruhu než byl navržen.',a.id);
   if(!compatible)add(g,p?'error':'missing',p?'Připojovací bod neodpovídá typu připojení.':'Chybí platný připojovací bod.',a.id);
   if(compatible){used.set(p.id,(used.get(p.id)||0)+1);if((p.type==='socket400'&&a.mode==='1N')||(!['socket400','outlet'].includes(p.type)&&a.mode!=='1N'))add(g,'error','Způsob připojení neodpovídá bodu.',a.id)}
   const c=calculate(a,s);g.loads.push({id:a.id,name:a.name,n:modes[a.mode],mode:a.mode,locked:a.phases||[],...c,dedicated:a.dedicated,connectionPointId:a.connectionPointId,source:a.source,pf:a.pf,startA:a.startA});
   for(const d of c.diagnostics)add(g,d.level,d.msg,a.id);
-  if((a.dedicated!=='auto'||a.mode!=='1N'||(c.installedW??0)>=2000)&&(!g.routeId||g.pointIds.length>1))add(g,'warning','Prověřte samostatný okruh pro spotřebič.',a.id);
+  if((a.dedicated!=='auto'||a.mode!=='1N'||(c.installedW??0)>=2000)&&((!g.routeId&&!g.circuitId)||g.pointIds.length>1))add(g,'warning','Prověřte samostatný okruh pro spotřebič.',a.id);
  }
  for(const a of items.filter(a=>a.type==='light')){
   const g=groupForPoint(a),power=lightPower(a),c=calculate({...makeAppliance('custom'),powerW:power,source:'estimate'},s);
