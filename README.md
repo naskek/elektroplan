@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.10
+## Prototyp 0.1.11
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -81,3 +81,13 @@ Nástroj **Přesun kót** umožňuje tažením myší přesunout automatickou ne
 Ve výkazu ploch se zobrazí upozornění, pokud dva nebo více názvů patří do stejného uzavřeného prostoru, nebo pokud popisek není v uzavřené místnosti. Kontrola hledá mezery do 100 mm, které lze uzavřít prodloužením konce stěny na jinou stěnu. Podezřelá místa jsou oranžově označena. U jednotlivé stěny lze použít **Uzavřít mezeru**; změna délky vyžaduje potvrzení a lze ji vrátit. Oprava nepřesouvá existující otvory. Kontrola není úplným ověřením geometrie a nezjišťuje všechny typy chyb. Polohy automatických kót jsou navázány na konkrétní měřené úseky; při změně jejich geometrie se mohou vrátit na výchozí pozici.
 
 Před aktualizací stránky uložte rozpracovaný projekt tlačítkem **Uložit projekt (JSON)**. Automatické ukládání zatím není k dispozici.
+
+## Vrstvy, druhy tras a značky (0.1.11)
+
+V panelu **Vrstvy a zobrazení** lze samostatně zobrazit kóty stěn, dveří, oken a ruční kóty. Hlavní přepínač **Zobrazit kóty** skryje všechny kóty bez odstranění jejich dat. Předvolby **Půdorys**, **Elektro** a **Vše** usnadňují přepínání pracovního pohledu. Elektroinstalační prvky a jednotlivé druhy tras mají samostatné filtry; půdorys zůstává viditelný. Filtry neovlivňují výkaz materiálu ani délky kabelů.
+
+Před kreslením kabelu vyberte **Druh trasy**: světelná (plná čára), zásuvková (čárkovaná), datová (tečkovaná) nebo ostatní (čerchovaná). Jde o konvenci tohoto výkresu, nikoli obecně závazné rozlišení podle ČSN. Typ kabelu zůstává nezávislý na druhu trasy; nabízené výchozí kabely nejsou ověřeným návrhem dimenzování. Druh již zakreslené trasy lze změnit ve výkazu. Staré trasy bez druhu jsou označeny jako ostatní / neurčené. Při ručním kreslení lze trasu přichytit k viditelným elektroinstalačním prvkům.
+
+Rozšířená pracovní knihovna zahrnuje zásuvku 230 V, dvojzásuvku, trojnásobnou zásuvku, zásuvku 400 V, datové zásuvky RJ45 (1× a 2×), TV zásuvku, rozvodnou krabici, svítidlo, spínače řazení 1, 5, 6, 7 a rozvaděč. Značky jsou inspirovány veřejným [výběrem grafických značek IEC 60617DB](https://www.agenturacas.gov.cz/wp-content/uploads/Graficke-znacky-na-schematech.pdf), zejména str. 100–101, S00457–S00472. Některá doplňková označení a kresba jsou vlastní pracovní konvencí. Nejde o certifikovanou normovou knihovnu. Legenda je dostupná ve výkazu. Vícenásobná zásuvka zatím představuje jeden zakreslený prvek, nikoli automatický výkaz samostatných zásuvkových mechanismů.
+
+Formát projektu 7 ukládá druhy tras a viditelnost vrstev. Starší soubory lze otevřít. Před aktualizací stránky uložte projekt do JSON.
