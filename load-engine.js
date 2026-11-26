@@ -88,5 +88,25 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null){
  if(total.slice(0,s.phaseCount).some(x=>x>s.mainA+1e-8))add(null,'error','Překročen limit přívodu. Změňte scénář nebo rozdělení okruhů; výsledek velkých projektů není důkaz nemožnosti jiné kombinace.');
  return {version:1,optimization:exact?'exhaustive':'heuristic',method:'Součet velikostí proudů, konzervativní odhad; bez výpočtu N.',settings:s,phaseA:total,reserveA:total.map(v=>s.mainA-v),imbalanceA:Math.max(...total.slice(0,s.phaseCount))-Math.min(...total.slice(0,s.phaseCount)),installedW:groups.reduce((n,g)=>n+g.installedW,0),designW:groups.reduce((n,g)=>n+g.designW,0),groups:groups.map(({candidates,...g})=>g),diagnostics:diag,incomplete:diag.some(d=>d.level!=='warning')||groups.some(g=>g.unknown)};
 }
-return {templates,modes,defaults,validSettings,validAppliance,makeAppliance,calculate,aggregate};
+
+// Kapacita připojovacích míst; nehodnotí jištění, umístění ani současnost.
+function connectionCapacity(items,roomOf=()=>null){
+ const keys=['socket230','socket400','fixed'];
+ const pointKind=a=>a?.type==='outlet'?'fixed':a?.type==='socket400'?'socket400':['socket','socket2','socket3'].includes(a?.type)?'socket230':null;
+ const needKind=a=>a.connectionType==='fixed'?'fixed':a.mode==='1N'?'socket230':'socket400';
+ const groups=new Map(),points=new Map(),issues=[];
+ const group=id=>{const key=id??null;if(!groups.has(key))groups.set(key,{roomId:key,kinds:Object.fromEntries(keys.map(k=>[k,{available:0,required:0,linked:0,unlinked:0,pointIds:[],applianceIds:[]}]))});return groups.get(key)};
+ for(const p of items){const k=pointKind(p);if(!k)continue;const roomId=roomOf(p)??null,g=group(roomId).kinds[k],capacity=slots(p);g.available+=capacity;g.pointIds.push(p.id);points.set(p.id,{p,k,roomId,capacity,used:0})}
+ for(const a of items.filter(x=>x.type==='appliance')){
+   const k=needKind(a),roomId=roomOf(a)??null,point=points.get(a.connectionPointId),valid=point?.k===k;
+   const g=group(valid?point.roomId:roomId).kinds[k];g.required++;g.applianceIds.push(a.id);
+   if(valid){g.linked++;point.used++;if(roomId!==null&&point.roomId!==null&&roomId!==point.roomId)issues.push({type:'crossRoom',id:a.id,pointId:point.p.id})}
+   else{g.unlinked++;if(a.connectionPointId!=null)issues.push({type:'invalidLink',id:a.id,pointId:a.connectionPointId})}
+ }
+ for(const p of points.values())if(p.used>p.capacity)issues.push({type:'overbooked',id:p.p.id,used:p.used,capacity:p.capacity});
+ const total=Object.fromEntries(keys.map(k=>[k,{available:0,required:0,linked:0,unlinked:0,missing:0,free:0}]));
+ for(const g of groups.values())for(const k of keys){const c=g.kinds[k];c.missing=Math.max(0,c.required-c.available);c.free=Math.max(0,c.available-c.required);for(const prop of Object.keys(total[k]))total[k][prop]+=c[prop]}
+ return {rooms:[...groups.values()],total,issues};
+}
+return {templates,modes,defaults,validSettings,validAppliance,makeAppliance,calculate,aggregate,connectionCapacity};
 })();
