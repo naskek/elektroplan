@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.14
+## Prototyp 0.1.15
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -113,3 +113,13 @@ Přesun připojeného prvku aktualizuje odpovídající body automatického okru
 Nástrojem **Výběr a úpravy** (V) klikněte na značku nebo ji přetáhněte levým tlačítkem myši. Vybraný prvek má modré orámování. V ručně kresleném půdorysu se používá aktuální krok kreslení a přichycení; podržením Alt lze při tažení přichycení dočasně vypnout. Esc zruší rozpracované tažení. Pravé tlačítko nadále otevírá vlastnosti. Přesun je jednou změnou v historii a podporuje Ctrl+Z a Ctrl+Y.
 
 Navázané body automatických okruhů se přesunují současně s prvkem, délky se po dokončení přepočítají. Mezilehlé lomové body zůstávají na svém místě; trasa se automaticky nepřesměrovává kolem stěn. Pokud v původní poloze leží bod ručně kreslené trasy bez vazby, aplikace před přesunem upozorní, že tato trasa nebude změněna. Formát projektu se nemění (verze 9).
+
+## Ovládání osvětlení z více míst (0.1.15)
+
+Kliknutím na řazení 6 otevřete průvodce. Zvolte 1–20 ovládacích míst, předběžný typ propojovacího kabelu a případně samostatnou odbočnou krabici. Pro dvě a více míst průvodce vytvoří dva krajní přepínače řazení 6 a mezi nimi potřebný počet přepínačů řazení 7. Klikněte postupně na jejich polohy a případně na polohu odbočné krabice. Celá skupina se uloží jedním krokem historie. Jedno místo znamená samostatně vložený přepínač 6, nikoli úplné schodišťové zapojení.
+
+Fialové plné propojovací úseky jsou pouze předběžný odhad délky mezi sousedními přepínači. Výchozí volba CYKY-O 3×1,5 je pracovní předpoklad, nikoli doporučení pro každou instalaci. Kabel neobsahuje ochrannou žílu; ověřte skutečné zapojení, potřebu a vedení PE a N, počet pracovních žil a podmínky instalace. Ve vlastnostech propojovacího kabelu lze změnit typ a ručně doplnit svislou délku. Mezi přepínači se automaticky kreslí přímé úseky, nikoli ověřená montážní trasa. Přívod, vývod ke svítidlu, propojení odbočné krabice a skupiny svítidel zatím nejsou automaticky řešeny. Běžný automatický okruh blokuje opakované přímé spojení dvojice již propojených přepínačů; ruční trasy je nutné kontrolovat proti dvojímu započtení. Propojení není samostatným jištěným okruhem. Při přesunu přepínače se navázané propojovací úseky aktualizují.
+
+Výkaz **Krabice a ovládání** počítá jednu přístrojovou krabici pro každý zakreslený spínač či přepínač; skutečný typ a počet pro sestavy je třeba ověřit. Samostatné odbočné krabice se vykazují jen při jejich vložení. Spoje mohou být podle zvoleného řešení v vhodné přístrojové krabici, není nutná samostatná odbočná krabice pro každý přepínač. Svorky, velikost krabic, skupiny řazení 6+6 a úplná schémata zapojení zatím nejsou automaticky dimenzovány.
+
+Formát projektu 10 ukládá propojovací kabely s odkazy na přepínače. Starší projekty zůstávají čitelné. Zdroje k principu řazení: [iElektra](https://www.ielektra.cz/rsc4885511-schodistovy-vypinac-ze-3-mist-a-dalsi-zapojeni), [Tympol Plus](https://www.tympolplus.cz/obsah/zapojeni-vypinacu).
