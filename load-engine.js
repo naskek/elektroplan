@@ -10,17 +10,18 @@ const optional=(v,min,max)=>v==null||num(v,min,max);
 const choices=(n,count)=>{const out=[];function go(a,start){if(a.length===n){out.push(a);return}for(let i=start;i<count;i++)go([...a,i],i+1)}go([],0);return out};
 const validPhases=(p,n=3)=>Array.isArray(p)&&p.length<=n&&p.every(x=>Number.isInteger(x)&&x>=0&&x<n)&&new Set(p).size===p.length;
 function validSettings(s){return !!s&&[1,3].includes(s.phaseCount)&&num(s.ln,100,300)&&num(s.ll,100,500)&&num(s.mainA,1,1000)&&['unknown','TN-C','TN-S','TN-C-S','TT','IT'].includes(s.earthing)&&typeof s.confirmed==='boolean'&&num(s.freeSocketW,0,100000)&&['all','cooking','laundry','heating'].includes(s.scenario)&&s.assignments&&typeof s.assignments==='object'&&!Array.isArray(s.assignments)&&Object.entries(s.assignments).every(([k,v])=>/^[rap]:\d+$/.test(k)&&validPhases(v,3)&&v.length>0)}
-function validAppliance(a){const n=modes[a.mode];return !!n&&templates.some(t=>t[0]===a.template)&&typeof a.name==='string'&&a.name.trim().length>0&&a.name.length<=80&&['socket','fixed'].includes(a.connectionType)&&['template','estimate','nameplate'].includes(a.source)&&['auto','requested','confirmed'].includes(a.dedicated)&&optional(a.powerW,0.01,1000000)&&optional(a.pf,.01,1)&&optional(a.limitW,.01,1000000)&&optional(a.startA,.01,10000)&&optional(a.area,.01,100000)&&optional(a.density,.01,100000)&&optional(a.connectionPointId,1,Number.MAX_SAFE_INTEGER)&&(a.connectionPointId==null||Number.isSafeInteger(a.connectionPointId))&&(a.branchW==null||(Array.isArray(a.branchW)&&a.branchW.length===n&&a.branchW.every(v=>num(v,0,1000000))&&['1N','2N','3N'].includes(a.mode)))&&(a.nameplateA==null||(Array.isArray(a.nameplateA)&&a.nameplateA.length===n&&a.nameplateA.every(v=>num(v,0,10000))))&&validPhases(a.phases||[])&&(!(a.phases||[]).length||a.phases.length===n)&&a.factors&&['cooking','laundry','heating'].every(k=>num(a.factors[k],0,1))}
+function validAppliance(a){const n=modes[a.mode];return !!n&&templates.some(t=>t[0]===a.template)&&typeof a.name==='string'&&a.name.trim().length>0&&a.name.length<=80&&['socket','fixed'].includes(a.connectionType)&&['template','estimate','nameplate'].includes(a.source)&&['auto','requested','confirmed'].includes(a.dedicated)&&optional(a.powerW,0.01,1000000)&&optional(a.pf,.01,1)&&optional(a.limitW,.01,1000000)&&optional(a.startA,.01,10000)&&optional(a.area,.01,100000)&&optional(a.density,.01,100000)&&optional(a.connectionPointId,1,Number.MAX_SAFE_INTEGER)&&(a.connectionPointId==null||Number.isSafeInteger(a.connectionPointId))&&(a.branchW==null||(Array.isArray(a.branchW)&&a.branchW.length===n&&a.branchW.every(v=>num(v,0,1000000))&&['1N','2N','3N'].includes(a.mode)))&&(a.nameplateA==null||(Array.isArray(a.nameplateA)&&a.nameplateA.length===n&&a.nameplateA.every(v=>num(v,0,10000))))&&validPhases(a.phases)&&(!a.phases.length||a.phases.length===n)&&a.factors&&['cooking','laundry','heating'].every(k=>num(a.factors[k],0,1))}
 function makeAppliance(key){const t=templates.find(x=>x[0]===key)||templates.at(-1);return {template:t[0],name:t[2],powerW:t[3],mode:t[4],connectionType:t[5],source:'template',pf:null,limitW:null,startA:null,branchW:null,nameplateA:null,phases:[],connectionPointId:null,dedicated:'auto',area:null,density:t[0]==='floor'?150:null,factors:{cooking:1,laundry:1,heating:1}}}
 function calculate(a,s){
  const diagnostics=[],warn=(level,msg)=>diagnostics.push({level,msg});const n=modes[a.mode];
- if(!n||!validSettings(s)){warn('error','Neplatné vstupy výpočtu.');return {installedW:null,designW:null,currents:null,diagnostics}}
+ if(!n||!validSettings(s)||!validAppliance(a)){warn('error','Neplatné vstupy výpočtu.');return {installedW:null,designW:null,currents:null,diagnostics}}
  let power=a.powerW??(num(a.area,.01,100000)&&num(a.density,.01,100000)?a.area*a.density:null);
  if(power!==null&&!num(power,.01,1000000)){warn('error','Neplatný příkon.');power=null}
  const pf=a.pf??1;if(!num(pf,.01,1)){warn('error','Neplatný účiník.');return {installedW:power,designW:null,currents:null,diagnostics}}
  if(a.pf==null)warn('warning','Účiník 1 je pouze předpoklad.');
  if(a.source!=='nameplate')warn('warning','Příkon není potvrzen štítkem.');
  if(n>s.phaseCount)warn('error','Nedostatek fází pro způsob připojení.');
+ if(a.startA!=null)warn('warning','Rozběhový proud je uložen; posouzení jištění není součástí bilance.');
  let nominal=power===null?null:a.mode==='2L'?Array(2).fill(power/(s.ll*pf)):a.mode==='3L'||a.mode==='3N'?Array(3).fill(power/(Math.sqrt(3)*s.ll*pf)):Array(n).fill(power/(n*s.ln*pf));
  if(a.branchW){const sum=a.branchW.reduce((x,y)=>x+y,0);if(power!=null&&Math.abs(sum-power)>Math.max(1,power*.05))warn('warning','Součet výkonů větví neodpovídá příkonu.');if(power===null)power=sum;nominal=a.branchW.map(v=>v/(s.ln*pf))}
  let currents=a.nameplateA??nominal;
@@ -46,7 +47,7 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null){
   const g=compatible?groupForPoint(p):newGroup('a:'+a.id);g.applianceIds.push(a.id);
   if(!compatible)add(g,'missing','Chybí platný připojovací bod.',a.id);
   if(compatible){used.set(p.id,(used.get(p.id)||0)+1);if((p.type==='socket400'&&a.mode==='1N')||(!['socket400','outlet'].includes(p.type)&&a.mode!=='1N'))add(g,'error','Způsob připojení neodpovídá bodu.',a.id)}
-  const c=calculate(a,s);g.loads.push({id:a.id,name:a.name,n:modes[a.mode],mode:a.mode,locked:a.phases||[],...c,dedicated:a.dedicated});
+  const c=calculate(a,s);g.loads.push({id:a.id,name:a.name,n:modes[a.mode],mode:a.mode,locked:a.phases||[],...c,dedicated:a.dedicated,connectionPointId:a.connectionPointId,source:a.source,pf:a.pf,startA:a.startA});
   for(const d of c.diagnostics)add(g,d.level,d.msg,a.id);
   if((a.dedicated!=='auto'||a.mode!=='1N'||(a.powerW??0)>=2000)&&(!g.routeId||g.pointIds.length>1))add(g,'warning','Prověřte samostatný okruh pro spotřebič.',a.id);
  }
@@ -65,8 +66,8 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null){
   g.unknown=g.loads.some(a=>a.installedW==null||a.currents==null);
   g.n=Math.max(1,...g.loads.map(a=>a.n));const ns=new Set(g.loads.map(a=>a.n));if(ns.size>1)add(g,'error','Smíšený počet fází v okruhu; vyžaduje ověření zapojení.');
   const locks=[s.assignments[g.id],...g.loads.map(a=>a.locked)].filter(a=>a?.length);
-  const locked=locks[0];if(locks.some(a=>a.join(',')!==locked.join(',')))add(g,'error','Konflikt pevných fází.');
-  g.candidates=locked?[locked]:choices(g.n,s.phaseCount);
+  const locked=locks[0],conflict=locks.some(a=>a.join(',')!==locked.join(','));if(conflict)add(g,'error','Konflikt pevných fází.');
+  g.candidates=conflict||ns.size>1?[]:locked?[locked]:choices(g.n,s.phaseCount);
   g.candidates=g.candidates.filter(p=>p.length===g.n&&validPhases(p,s.phaseCount));
   if(!g.candidates.length)add(g,'error','Není přípustná kombinace fází.');
   g.candidates=g.candidates.map(p=>({phases:p,amps:phases.map((_,i)=>g.loads.reduce((n,a)=>{const k=p.indexOf(i);return n+(k>=0?(a.currents?.[k]??0):0)},0))}));
@@ -78,9 +79,14 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null){
  for(const g of ordered){if(!g.candidates.length){g.phases=[];g.amps=null;continue}const c=[...g.candidates].sort((a,b)=>cmp(score(plus(total,a.amps)),score(plus(total,b.amps))))[0];g.phases=c.phases;g.amps=c.amps;total=plus(total,c.amps)}
  // Lokální zlepšení, deterministické; není důkaz globálního optima.
  for(let pass=0;pass<5;pass++){let change=false;for(const g of ordered){if(!g.amps)continue;const base=total.map((v,i)=>v-g.amps[i]);for(const c of g.candidates){const next=plus(base,c.amps);if(cmp(score(next),score(total))<0){g.phases=c.phases;g.amps=c.amps;total=next;change=true}}}if(!change)break}
+ if(new Set(groups.map(g=>g.panelId).filter(x=>x!=null)).size>1)add(null,'warning','Více rozvaděčů: bilance předpokládá jeden společný přívod.');
  if(!s.confirmed)add(null,'missing','Parametry přívodu jsou pouze výchozí odhad.');
- if(total.slice(0,s.phaseCount).some(x=>x>s.mainA+1e-8))add(null,'error','Překročen limit přívodu. Změňte scénář nebo rozdělení okruhů; výsledek není důkaz nemožnosti jiné kombinace.');
- return {version:1,method:'Součet velikostí proudů, konzervativní odhad; bez výpočtu N.',settings:s,phaseA:total,reserveA:total.map(v=>s.mainA-v),imbalanceA:Math.max(...total.slice(0,s.phaseCount))-Math.min(...total.slice(0,s.phaseCount)),installedW:groups.reduce((n,g)=>n+g.installedW,0),designW:groups.reduce((n,g)=>n+g.designW,0),groups:groups.map(({candidates,...g})=>g),diagnostics:diag,incomplete:diag.some(d=>d.level!=='warning')||groups.some(g=>g.unknown)};
+ // Pro malé projekty vyzkoušet všechny kombinace; větší řešit heuristikou.
+ let combinations=1;for(const g of ordered)combinations*=Math.max(1,g.candidates.length);
+ const exact=combinations<=50000;
+ if(exact){let best=total.slice(),bestChoices=ordered.map(g=>g.candidates.find(c=>c.phases===g.phases));const chosen=[];function search(i,sum){if(i===ordered.length){if(cmp(score(sum),score(best))<0){best=sum;bestChoices=chosen.slice()}return}const g=ordered[i];if(!g.candidates.length){chosen[i]=null;search(i+1,sum);return}for(const c of g.candidates){chosen[i]=c;search(i+1,plus(sum,c.amps))}}search(0,[0,0,0]);total=best;for(let i=0;i<ordered.length;i++)if(bestChoices[i]){ordered[i].phases=bestChoices[i].phases;ordered[i].amps=bestChoices[i].amps}}
+ if(total.slice(0,s.phaseCount).some(x=>x>s.mainA+1e-8))add(null,'error','Překročen limit přívodu. Změňte scénář nebo rozdělení okruhů; výsledek velkých projektů není důkaz nemožnosti jiné kombinace.');
+ return {version:1,optimization:exact?'exhaustive':'heuristic',method:'Součet velikostí proudů, konzervativní odhad; bez výpočtu N.',settings:s,phaseA:total,reserveA:total.map(v=>s.mainA-v),imbalanceA:Math.max(...total.slice(0,s.phaseCount))-Math.min(...total.slice(0,s.phaseCount)),installedW:groups.reduce((n,g)=>n+g.installedW,0),designW:groups.reduce((n,g)=>n+g.designW,0),groups:groups.map(({candidates,...g})=>g),diagnostics:diag,incomplete:diag.some(d=>d.level!=='warning')||groups.some(g=>g.unknown)};
 }
 return {templates,modes,defaults,validSettings,validAppliance,makeAppliance,calculate,aggregate};
 })();
