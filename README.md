@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.16
+## Prototyp 0.1.17
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -127,3 +127,9 @@ Formát projektu 10 ukládá propojovací kabely s odkazy na přepínače. Star�
 ## Aktivní režim a stav tlačítek (0.1.16)
 
 Aktivní nástroj a předvolba zobrazení mají výrazné modré pozadí, odlišné od světle modrého stavu při najetí myší. Režim zobrazení se určuje podle aktuálních filtrů, včetně viditelnosti vodítek. Pokud nastavení neodpovídá žádné předvolbě, zobrazí se stav Vlastní. Předvolby Půdorys a Vše zapnou všechny dílčí kóty; Elektro vypne jejich hlavní přepínač a dočasně zneaktivní dílčí volby. Formát projektu se nemění.
+
+## Pravoúhlé propojení přepínačů (0.1.17)
+
+Průvodce ovládáním z více míst vytváří vodorovné a svislé úseky namísto přímých diagonál. Z dvojice základních tras vybere variantu s menším počtem příčných průchodů zakreslenými stěnami. Jde o orientační pravidlo, nikoli automatický návrh instalačních zón nebo bezpečného průchodu konstrukcí. Pravým tlačítkem na propojovací kabel lze změnit směr vedení, přehodit roh nebo zadat mezilehlou souřadnici X či Y v mm od počátku pracovní plochy (prázdná hodnota = základní roh). Délka se počítá ze všech úseků, svislé délky se zadávají ručně. Při přesunu přepínače se pravoúhlý tvar obnoví při zachování vybrané varianty a případné mezilehlé souřadnice. Ruční kabelové trasy se nemění.
+
+Formát projektu 11 ukládá směr a mezilehlou souřadnici. Při načtení projektu verze 10 se staré automatické diagonální spoje přepínačů převedou na pravoúhlé trasy, což může zvýšit výkaz délky kabelů. Automatické vedení podél všech stěn, výšky prvků, napojení odbočných krabic a ověření zapojení zatím nejsou řešeny.
