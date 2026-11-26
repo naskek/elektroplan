@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.9
+## Prototyp 0.1.10
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -73,3 +73,11 @@ Nástroj **Vodítko** (G) slouží k přesnému vytyčení bodů pro další kre
 4. Další vodítka můžete vytvořit vodorovně i svisle v libovolné celočíselné vzdálenosti v milimetrech. Přichycení funguje také v průsečících vodítek.
 
 V části **Zobrazení a nastavení** lze vodítka skrýt (současně vypnout přichycení k nim) nebo hromadně odstranit. Jednotlivá vodítka lze odstranit gumou či ve výkazu. Vložení a odstranění je součástí historie změn. Vodítka nejsou stěny, nevytvářejí místnosti a nezapočítávají se do ploch, obvodů, elektroinstalačních prvků ani kabelů. Formát projektu 5 ukládá vodítka a jejich viditelnost; starší projekty lze nadále otevřít. Vodítka jsou zatím dostupná pouze v ručně kresleném půdorysu. Jejich poloha je pevná, nikoli parametricky závislá na pozdějších úpravách stěn.
+
+## Přesun kót a kontrola uzavření místností (0.1.10)
+
+Nástroj **Přesun kót** umožňuje tažením myší přesunout automatickou nebo ruční kótu kolmo k její měřené vzdálenosti. Hodnota kóty ani souřadnice stěn se nemění. Přesun lze vrátit pomocí Ctrl+Z. V nastavení lze samostatně skrýt kóty otvorů nebo obnovit výchozí polohy všech kót. Projektový formát 6 ukládá vlastní posuny a nastavení zobrazení. Předchozí formáty 1–5 zůstávají podporovány.
+
+Ve výkazu ploch se zobrazí upozornění, pokud dva nebo více názvů patří do stejného uzavřeného prostoru, nebo pokud popisek není v uzavřené místnosti. Kontrola hledá mezery do 100 mm, které lze uzavřít prodloužením konce stěny na jinou stěnu. Podezřelá místa jsou oranžově označena. U jednotlivé stěny lze použít **Uzavřít mezeru**; změna délky vyžaduje potvrzení a lze ji vrátit. Oprava nepřesouvá existující otvory. Kontrola není úplným ověřením geometrie a nezjišťuje všechny typy chyb. Polohy automatických kót jsou navázány na konkrétní měřené úseky; při změně jejich geometrie se mohou vrátit na výchozí pozici.
+
+Před aktualizací stránky uložte rozpracovaný projekt tlačítkem **Uložit projekt (JSON)**. Automatické ukládání zatím není k dispozici.
