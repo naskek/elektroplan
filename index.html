@@ -141,6 +141,21 @@ function bestSnap(p,list,tolerance,project=false){
   const hit=nearestSegment(p,ss);if(hit&&hit.d<=tolerance)return {p:atSegment(hit.seg,hit.pos),ref:null,d:hit.d};
   return null;
 }
+function autoDimensionPlan(segs){
+  const same=(a,b)=>dist(a,b)<1e-6, remaining=new Set(segs),out=new Map();
+  while(remaining.size){
+    const first=remaining.values().next().value,group=[first];remaining.delete(first);
+    for(let i=0;i<group.length;i++)for(const s of [...remaining])if([group[i].a,group[i].b].some(p=>same(p,s.a)||same(p,s.b))){group.push(s);remaining.delete(s)}
+    const xs=[...new Set(group.flatMap(s=>[s.a.x,s.b.x]))],ys=[...new Set(group.flatMap(s=>[s.a.y,s.b.y]))];
+    if(group.length!==4||xs.length!==2||ys.length!==2||!group.every(s=>s.a.x===s.b.x||s.a.y===s.b.y))continue;
+    const top=group.find(s=>s.a.y===Math.min(...ys)&&s.b.y===Math.min(...ys));
+    const left=group.find(s=>s.a.x===Math.min(...xs)&&s.b.x===Math.min(...xs));
+    const bottom=group.find(s=>s.a.y===Math.max(...ys)&&s.b.y===Math.max(...ys));
+    const right=group.find(s=>s.a.x===Math.max(...xs)&&s.b.x===Math.max(...xs));
+    if(!top||!left||!bottom||!right)continue;
+    out.set(top,top.b.x>top.a.x?-1:1);out.set(left,left.b.y>left.a.y?1:-1);out.set(bottom,0);out.set(right,0);
+  }return out;
+}
 function snapTolerance(){const m=svg.getScreenCTM();return m?10/Math.max(.001,Math.hypot(m.a,m.b)):10}
 function choosePoint(p,t){
   const hit=$('snapNodes').checked&&['wall','room','dimension'].includes(t)?bestSnap(p,items,snapTolerance(),t!=='dimension'):null;
@@ -245,6 +260,8 @@ function drawPreview(){
   const r=Math.max(w,h)/125,ts=Math.max(7,r*1.2);
   const line=(a,b,color,width,dash)=>el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:color,'stroke-width':width,'stroke-dasharray':dash||'none'},g);
   const label=(p,t)=>{el('text',{x:p.x,y:p.y-ts,fill:'#0369a1','font-size':ts,'font-weight':600,'text-anchor':'middle',stroke:'#fff','stroke-width':3,'paint-order':'stroke'},g).textContent=t};
+  if(['wall','room','dimension'].includes(tool)&&hoverPoint&&$('snapNodes').checked){const hit=bestSnap(hoverPoint,items,snapTolerance(),tool!=='dimension');if(hit){el('circle',{cx:hit.p.x,cy:hit.p.y,r:Math.max(2,r*.5),fill:'white',stroke:'#0284c7','stroke-width':Math.max(1,r*.16)},g)}}
+  if(tool==='dimension'&&pending.length&&hoverPoint){const p=choosePoint(hoverPoint,tool).p;line(pending[0],p,'#0284c7',1,'4 2');label({x:(pending[0].x+p.x)/2,y:(pending[0].y+p.y)/2},Math.round(dist(pending[0],p)*10)+' mm')}
   if(['wall','room'].includes(tool)){
     if(!pending.length){$('liveMeasure').textContent='Zvolte počáteční bod.';return}
     const a=pending[0],p=hoverPoint?choosePoint(hoverPoint,tool).p:{x:a.x+10,y:a.y+10},b=geometryEnd(a,p);
@@ -300,7 +317,7 @@ if(tool==='door'||tool==='window'){
 }else if(tool==='scale'){pending.push(p);if(pending.length===2){let d=dist(...pending),k=number('known');if(d>0&&k>0){meters=k/1000/d;calibration={points:[...pending],mm:k};message('Měřítko bylo nastaveno.')}else message('Zadejte kladnou vzdálenost a dva různé body.');pending=[]}}else if(tool==='route'){if(!meters){message('Nejprve nastavte měřítko.');return}pending.push(p)}else items.push({id:++seq,type:tool,p});render();drawPreview()}
 $('finish').onclick=()=>{if(tool!=='route'||pending.length<2)return;items.push({id:++seq,type:'route',points:[...pending],cable:$('cable').value,vertical:number('vertical')});pending=[];render()};$('undo').onclick=()=>{if(pending.length)pending.pop();else if(items.length)removeItem(items.at(-1).id);render();drawPreview()};$('cancel').onclick=()=>{pending=[];render();drawPreview()};$('reserve').oninput=render;$('autoDimensions').onchange=render;$('showAreas').onchange=render;$('known').onchange=()=>{if(!manual&&calibration&&number('known')>0){calibration.mm=number('known');meters=calibration.mm/1000/dist(...calibration.points);render()}};
 function routeLength(a){return meters===null?null:(a.points.slice(1).reduce((s,p,i)=>s+dist(p,a.points[i]),0)*meters+a.vertical)*(1+number('reserve')/100)}function render(){let g=$('drawing'),arch=$('architecture');g.replaceChildren();arch.replaceChildren();const r=Math.max(w,h)/125;function poly(points,color,dashed=false){if(points.length>1)el('polyline',{points:points.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:color,'stroke-width':r*.25,'stroke-dasharray':dashed?`${r} ${r*.5}`:'none'},g)}if(manual){
-  const textSize=Math.max(6,r*1.2),segs=segments(items),openings=items.filter(a=>a.type==='door'||a.type==='window');
+  const textSize=Math.max(6,r*1.2),segs=segments(items),autoPlan=autoDimensionPlan(segs),openings=items.filter(a=>a.type==='door'||a.type==='window');
   const label=(x,y,t,color='#475569')=>{el('text',{x,y,fill:color,'font-size':textSize,'text-anchor':'middle','paint-order':'stroke',stroke:'#fff','stroke-width':1.6,'stroke-linejoin':'round'},arch).textContent=t};
   const line=(p,q,color,width)=>el('line',{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:color,'stroke-width':width},arch);
   const dimension=(a,b,offset)=>{
@@ -338,7 +355,7 @@ function routeLength(a){return meters===null?null:(a.points.slice(1).reduce((s,p
       }
       if($('autoDimensions').checked)dimension(at(lo),at(hi),seg.th/2+textSize*2.4);
     }
-    if($('autoDimensions').checked)dimension(seg.a,seg.b,-seg.th/2-textSize*1.8);
+    if($('autoDimensions').checked&&autoPlan.get(seg)!==0)dimension(seg.a,seg.b,(autoPlan.get(seg)??-1)*(seg.th/2+textSize*1.8));
   }
   for(const a of items.filter(x=>x.type==='dimension'))dimension(...dimensionPoints(a),textSize*1.7);
   const result=roomAreas(segs),names=items.filter(x=>x.type==='name'),areas=$('areas');areas.replaceChildren();
@@ -379,7 +396,7 @@ function validProject(o){
   if(!Array.isArray(o.prvky))throw Error('Chybí seznam prvků.');
   const ids=new Set();
   for(const a of o.prvky){
-    if(!a||!Number.isSafeInteger(a.id)||a.id<1||ids.has(a.id)||!Object.hasOwn(labels,a.type))throw Error('Neplatný nebo duplicitní prvek.');
+    if(!a||!Number.isSafeInteger(a.id)||a.id<1||ids.has(a.id)||(!Object.hasOwn(labels,a.type)||a.type==='select'))throw Error('Neplatný nebo duplicitní prvek.');
     ids.add(a.id);
     if(['door','window','dimension'].includes(a.type)){
       if(!drawing||o.verze<3)throw Error('Neplatný stavební prvek.');
