@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.7
+## Prototyp 0.1.8
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -56,3 +56,9 @@ ElektroPlan pracuje se schématem elektroinstalace, nikoli se stavebním modelem
 Uzavřené pravoúhlé místnosti se zjišťují podle propojených čar, nikoli podle překrytí jejich grafických tahů. Příčka může rozdělit místnost na dvě samostatné plochy. Neuzavřený obvod nemá vypočtenou plochu. Šikmé stěny lze kreslit a kótovat, ale jejich automatická plocha zatím není podporována.
 
 Starší soubory zůstávají čitelné a jejich souřadnice se nemění. Plochy se však po načtení přepočítají podle nové schematické geometrie. Výsledky nevyjadřují stavební výměru ani tloušťku konstrukcí.
+
+## Historie změn a guma (0.1.8)
+
+- **Zpět** (Ctrl+Z) vrací poslední dokončenou změnu, **Znovu** (Ctrl+Y nebo Ctrl+Shift+Z) ji obnoví. U rozpracované trasy nebo stěny lze vracet a obnovovat jednotlivé body. Historie zahrnuje přidávání, odstraňování, změny otvorů a kalibraci měřítka; uchovává nejvýše 100 dokončených změn v aktuální relaci. Nová dokončená změna po kroku zpět zruší větev opakování.
+- **Guma** (E): najeďte na prvek, červený náhled označí cíl, kliknutím jej odstraníte. Lze odstranit stěnu, jednotlivou stranu obdélníku, dveře, okno, popisek, ruční kótu, elektroinstalační prvek nebo kabelovou trasu. Při odstranění stěny se odstraní i její otvory a závislé ruční kóty. Ostatní strany obdélníku včetně jejich otvorů zůstávají zachovány. Celou operaci lze vrátit jedním krokem zpět.
+- Vybraný otvor lze odstranit také klávesou Delete. Při zadávání textu či čísla zůstávají zachovány obvyklé zkratky pro editaci textu. Historie není ukládána do projektového JSON; vytvoření nového projektu, otevření jiného projektu nebo výměna či otočení podkladu ji vymaže. Automatické kóty se přepočítávají, nemažou se jednotlivě gumou.
