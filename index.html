@@ -1,22 +1,20 @@
 <!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ElektroPlan</title><style>
 *{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#1e293b;background:#f1f5f9}header{background:#fff;border-bottom:1px solid #dbe3eb;padding:15px 22px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}h1{font-size:20px;margin:0}small,.muted{color:#64748b}main{display:grid;grid-template-columns:230px minmax(0,1fr) 260px;gap:12px;padding:12px;min-height:80vh}aside,section{background:white;border:1px solid #dbe3eb;border-radius:10px;padding:14px}h2{font-size:15px;margin:0 0 12px}button,input,select{font:inherit;border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:8px;color:inherit}button{cursor:pointer}button:hover,button.active{background:#e0f2fe;border-color:#0284c7}button:disabled{opacity:.5;cursor:default}label{display:block;margin-top:12px}input[type=number],select{width:100%;margin-top:4px}input[type=file]{max-width:100%}.tools{display:grid;gap:6px}.stage{padding:0;overflow:auto;display:flex;flex-direction:column}.stagebar{padding:10px;border-bottom:1px solid #e2e8f0;display:flex;gap:6px;flex-wrap:wrap}.paper{flex:1;min-height:420px;background:#e5ebf0;display:grid;place-items:center;padding:16px}svg{width:100%;height:auto;max-height:75vh;touch-action:none;cursor:crosshair;background:white;box-shadow:0 2px 12px #0002}.status{padding:10px;color:#475569}.metric{border-bottom:1px solid #e2e8f0;padding:10px 0}.metric strong{display:block;font-size:23px}.item{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #e2e8f0}.item button{padding:2px 6px}.warn{background:#fff7ed;padding:10px;border-radius:6px;color:#9a3412;margin-top:12px}footer{padding:0 18px 15px;color:#64748b}@media(max-width:900px){main{grid-template-columns:190px 1fr}main>aside:last-child{grid-column:1/-1}}@media(max-width:600px){main{grid-template-columns:1fr}main>aside:last-child{grid-column:auto}}
-.dimensions{display:grid;grid-template-columns:1fr 1fr;gap:8px}summary{cursor:pointer;font-weight:600}#manualTools{border-top:1px solid #e2e8f0;margin-top:12px}[hidden]{display:none!important}aside{min-width:0}svg text{user-select:none} header{position:relative;padding:10px 16px;min-height:58px}main{height:calc(100dvh - 88px);min-height:420px;grid-template-columns:210px minmax(0,1fr) 235px;align-items:stretch;gap:10px;padding:10px}aside{overflow:auto;min-height:0}aside h2{margin:18px 0 8px}aside h2:first-child{margin-top:0}.toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.toolgrid button{padding:8px 4px;min-height:36px;font-size:12px}.toolgrid button[data-tool=name]{grid-column:1/-1}details{margin-top:12px}details summary{font-size:12px;color:#475569}.stage{min-height:0;overflow:hidden}.stagebar{align-items:center;flex-shrink:0}.inspector{padding:0 10px;border-bottom:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;flex-shrink:0}.fields{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;padding:8px 0}.fields label{margin:0;font-size:11px;color:#475569}.fields input:not([type=checkbox]),.fields select{display:block;width:130px;margin:3px 0 0;font-size:13px;padding:6px}.fields #roomName{width:230px}.fields .inlinecheck{align-self:center}.fields small{align-self:center}.paper{min-height:0;flex:1;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:12px}.paper svg{display:block;width:100%;height:100%;max-height:none;min-height:0;box-shadow:none;background:#fff}.status{flex-shrink:0;min-height:34px;font-size:12px}.viewSettings{border-top:1px solid #e2e8f0;padding-top:10px}footer{font-size:11px;padding:0 12px 5px}@media(max-width:1050px){main{grid-template-columns:175px minmax(0,1fr) 190px}.fields input:not([type=checkbox]),.fields select{width:105px}}@media(max-width:760px){main{height:auto;grid-template-columns:1fr}.stage{height:70vh;min-height:400px}aside{overflow:visible}.toolgrid{grid-template-columns:repeat(3,1fr)}main>aside:last-child{grid-column:auto}} </style></head><body><header><h1>⚡ ElektroPlan</h1><small>Prototyp 0.1.4 · Půdorys a kabelové trasy</small><span style="flex:1"></span><input type="file" id="projectFile" accept=".json,application/json" hidden><button id="open">Otevřít projekt</button><button id="export">Uložit projekt (JSON)</button></header><main><aside class="left"><h2>Projekt</h2><div class="tools"><button id="newDefault">Nový půdorys</button><button id="upload">Nahrát obrázek</button><input type="file" id="file" accept="image/*" hidden aria-label="Nahrát půdorys"></div><details id="workspace"><summary>Rozměry pracovní plochy</summary><div class="dimensions"><label>Šířka (mm)<input id="blankWidth" type="number" min="1000" max="100000" step="1" value="15000"></label><label>Výška (mm)<input id="blankHeight" type="number" min="1000" max="100000" step="1" value="10000"></label></div><button id="newPlan" style="width:100%;margin-top:8px">Vytvořit plochu</button><p class="muted">Rozměry kreslicí plochy, nikoli bytu.</p></details>
+.dimensions{display:grid;grid-template-columns:1fr 1fr;gap:8px}summary{cursor:pointer;font-weight:600}#manualTools{border-top:1px solid #e2e8f0;margin-top:12px}[hidden]{display:none!important}aside{min-width:0}svg text{user-select:none} header{position:relative;padding:10px 16px;min-height:58px}main{height:calc(100dvh - 88px);min-height:420px;grid-template-columns:210px minmax(0,1fr) 235px;align-items:stretch;gap:10px;padding:10px}aside{overflow:auto;min-height:0}aside h2{margin:18px 0 8px}aside h2:first-child{margin-top:0}.toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.toolgrid button{padding:8px 4px;min-height:36px;font-size:12px}.toolgrid button[data-tool=name]{grid-column:1/-1}details{margin-top:12px}details summary{font-size:12px;color:#475569}.stage{min-height:0;overflow:hidden}.stagebar{align-items:center;flex-shrink:0}.inspector{padding:0 10px;border-bottom:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;flex-shrink:0}.fields{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;padding:8px 0}.fields label{margin:0;font-size:11px;color:#475569}.fields input:not([type=checkbox]),.fields select{display:block;width:130px;margin:3px 0 0;font-size:13px;padding:6px}.fields #roomName{width:230px}.fields .inlinecheck{align-self:center}.fields small{align-self:center}.paper{min-height:0;flex:1;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:12px}.paper svg{display:block;width:100%;height:100%;max-height:none;min-height:0;box-shadow:none;background:#fff}.status{flex-shrink:0;min-height:34px;font-size:12px}.viewSettings{border-top:1px solid #e2e8f0;padding-top:10px}footer{font-size:11px;padding:0 12px 5px}@media(max-width:1050px){main{grid-template-columns:175px minmax(0,1fr) 190px}.fields input:not([type=checkbox]),.fields select{width:105px}}@media(max-width:760px){main{height:auto;grid-template-columns:1fr}.stage{height:70vh;min-height:400px}aside{overflow:visible}.toolgrid{grid-template-columns:repeat(3,1fr)}main>aside:last-child{grid-column:auto}} .toolgrid button[data-tool=select]{grid-column:1/-1}dialog{border:1px solid #cbd5e1;border-radius:12px;padding:20px;max-width:min(360px,90vw);width:340px;color:#1e293b}dialog::backdrop{background:#0f172a55}.dialogActions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.contextEditor{position:fixed;z-index:10;width:265px;max-height:85vh;overflow:auto;background:white;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 32px #0f172a30;padding:12px}.openingEditor label{margin:8px 0;font-size:12px}.openingEditor input,.openingEditor select{width:100%;margin-top:4px}.openingEditor .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.openingEditor .error{color:#b91c1c;font-size:12px}#selectionPanel hr{border:0;border-top:1px solid #e2e8f0;margin:14px 0}.item .selectable{cursor:pointer;color:#0369a1}.openingHit{cursor:pointer} </style></head><body><header><h1>⚡ ElektroPlan</h1><small>Prototyp 0.1.5 · Půdorys a kabelové trasy</small><span style="flex:1"></span><input type="file" id="projectFile" accept=".json,application/json" hidden><button id="open">Otevřít projekt</button><button id="export">Uložit projekt (JSON)</button></header><main><aside class="left"><h2>Projekt</h2><div class="tools"><button id="newDefault">Nový půdorys</button><button id="upload">Nahrát obrázek</button><input type="file" id="file" accept="image/*" hidden aria-label="Nahrát půdorys"></div><details id="workspace"><summary>Rozměry pracovní plochy</summary><div class="dimensions"><label>Šířka (mm)<input id="blankWidth" type="number" min="1000" max="100000" step="1" value="15000"></label><label>Výška (mm)<input id="blankHeight" type="number" min="1000" max="100000" step="1" value="10000"></label></div><button id="newPlan" style="width:100%;margin-top:8px">Vytvořit plochu</button><p class="muted">Rozměry kreslicí plochy, nikoli bytu.</p></details>
 <div id="imageTools" hidden><h2>Podklad</h2><button id="rotate">Otočit o 90°</button><button data-tool="scale">Nastavit měřítko</button></div>
-<div id="manualTools"><h2>Půdorys</h2><div class="toolgrid"><button data-tool="wall">Stěna</button><button data-tool="room">Obdélník</button><button data-tool="door">Dveře</button><button data-tool="window">Okno</button><button data-tool="name">Název místnosti</button><button data-tool="dimension">Kóta</button></div></div>
+<div id="manualTools"><h2>Půdorys</h2><div class="toolgrid"><button data-tool="select">Výběr a úpravy</button><button data-tool="wall">Stěna</button><button data-tool="room">Obdélník</button><button data-tool="door">Dveře</button><button data-tool="window">Okno</button><button data-tool="name">Název místnosti</button><button data-tool="dimension">Kóta</button></div></div>
 <h2>Elektroinstalace</h2><div class="toolgrid"><button data-tool="panel">Rozvaděč</button><button data-tool="socket">Zásuvka</button><button data-tool="light">Svítidlo</button><button data-tool="switch1">Spínač 1</button><button data-tool="switch5">Spínač 5</button><button data-tool="switch6">Přepínač 6</button><button data-tool="switch7">Přepínač 7</button><button data-tool="route">Kabelová trasa</button></div>
-<details class="viewSettings"><summary>Zobrazení a nastavení</summary><label>Přichycení k mřížce<select id="snap"><option value="0.1">1 mm</option><option value="1">10 mm</option><option value="10" selected>100 mm</option><option value="25">250 mm</option><option value="50">500 mm</option><option value="0">Bez přichycení</option></select></label><label><input id="autoDimensions" type="checkbox" checked> Automatické kóty</label><label><input id="showAreas" type="checkbox" checked> Plochy místností</label><label>Montážní rezerva (%)<input id="reserve" type="number" min="0" max="100" value="10"></label></details>
+<details class="viewSettings"><summary>Zobrazení a nastavení</summary><label>Krok kreslení<select id="snap"><option value="0.1">1 mm</option><option value="1">10 mm</option><option value="10" selected>100 mm</option><option value="25">250 mm</option><option value="50">500 mm</option><option value="100">1000 mm</option><option value="0">Bez přichycení</option></select></label><label><input id="snapNodes" type="checkbox" checked> Přichytit k bodům stěn a otvorů</label><label><input id="autoDimensions" type="checkbox" checked> Automatické kóty</label><label><input id="showAreas" type="checkbox" checked> Plochy místností</label><label>Montážní rezerva (%)<input id="reserve" type="number" min="0" max="100" value="10"></label></details>
 </aside><section class="stage"><div class="stagebar"><strong id="toolTitle"></strong><span style="flex:1"></span><button id="finish" hidden>Dokončit trasu</button><button id="undo">Zpět</button><button id="cancel">Zrušit</button></div><div class="inspector">
 <div data-for="wall room" class="fields"><label>Tloušťka (mm)<input id="wallThickness" type="number" min="50" max="1000" step="1" value="150"></label></div>
 <div data-for="wall" class="fields"><label>Přesná délka (mm)<input id="wallLength" type="number" min="1" step="1" placeholder="Např. 2131"></label><label>Směr<select id="direction"><option value="mouse">Podle kurzoru</option><option value="right">Vpravo →</option><option value="left">Vlevo ←</option><option value="up">Nahoru ↑</option><option value="down">Dolů ↓</option></select></label><label class="inlinecheck"><input id="orthogonal" type="checkbox" checked> Pravoúhle</label></div>
 <div data-for="room" class="fields"><label>Šířka (mm)<input id="roomWidth" type="number" min="1" step="1" placeholder="Podle kurzoru"></label><label>Výška (mm)<input id="roomHeight" type="number" min="1" step="1" placeholder="Podle kurzoru"></label></div>
-<div data-for="door" class="fields"><label>Šířka dveří (mm)<input id="doorWidth" type="number" min="100" max="10000" step="1" value="800"></label><label>Závěs<select id="hinge"><option value="start">A – začátek stěny</option><option value="end">B – konec stěny</option></select></label><label>Otevření<select id="swing"><option value="0">Podle strany kurzoru</option><option value="1">Strana A</option><option value="-1">Strana B</option></select></label><button id="flipHinge">Přehodit závěs</button><button id="flipSwing">Přehodit otevření</button></div>
-<div data-for="window" class="fields"><label>Šířka okna (mm)<input id="windowWidth" type="number" min="100" max="10000" step="1" value="1200"></label></div>
-<div data-for="name" class="fields"><label>Název místnosti<input id="roomName" list="roomNames" maxlength="80" placeholder="Vyberte nebo napište název"></label><datalist id="roomNames"><option>Kuchyň</option><option>Obývací pokoj</option><option>Ložnice</option><option>Koupelna</option><option>Chodba</option><option>Předsíň</option><option>WC</option><option>Dětský pokoj</option><option>Komora</option><option>Pracovna</option></datalist></div>
+<div data-for="door window" class="fields"><small id="openingHint"></small><button id="changeOpening">Změnit šířku</button></div><div hidden><input id="doorWidth" value="800"><input id="windowWidth" value="1200"><select id="hinge"><option value="start">A</option><option value="end">B</option></select><select id="swing"><option value="0">Automaticky</option><option value="1">A</option><option value="-1">B</option></select></div><div data-for="name" class="fields"><label>Název místnosti<input id="roomName" list="roomNames" maxlength="80" placeholder="Vyberte nebo napište název"></label><datalist id="roomNames"><option>Kuchyň</option><option>Obývací pokoj</option><option>Ložnice</option><option>Koupelna</option><option>Chodba</option><option>Předsíň</option><option>WC</option><option>Dětský pokoj</option><option>Komora</option><option>Pracovna</option></datalist></div>
 <div data-for="scale" class="fields"><label>Skutečná délka na obrázku (mm)<input id="known" type="number" min="1" value="12500"></label><small>Jen pro nahraný obrázek: označte dva konce známého rozměru.</small></div>
 <div data-for="route" class="fields"><label>Typ kabelu<select id="cable"><option>CYKY-J 3×1,5</option><option>CYKY-J 3×2,5</option><option>CYKY-J 5×1,5</option><option>CYKY-J 5×2,5</option><option>Jiný</option></select></label><label>Svislé úseky (m)<input id="vertical" type="number" min="0" step="0.1" value="0"></label></div>
 <div data-for="wall room" class="fields"><button id="confirmGeometry">Potvrdit rozměr ↵</button><small id="liveMeasure">Zvolte počáteční bod.</small></div>
-</div><div class="paper"><svg id="plan" viewBox="0 0 1000 700" aria-label="Půdorys"><defs id="planDefs"></defs><g id="bg"></g><g id="architecture"></g><g id="drawing"></g><g id="preview" pointer-events="none"></g></svg></div><div class="status" id="status" role="status"></div></section><aside><h2>Výkaz</h2><div class="metric">Měřítko<strong id="scaleOut">—</strong></div><div class="metric">Elektroinstalační prvky<strong id="count">0</strong></div><div class="metric">Kabely včetně rezervy<strong id="length">—</strong></div><div id="areaReport" hidden><h3>Plochy místností</h3><div id="areas"></div></div><h3>Podle typu kabelu</h3><div id="totals"></div><h3>Prvky a trasy</h3><div id="items"></div><div class="warn">Orientační výkaz. Nejde o projektovou dokumentaci ani ověřený návrh jištění. Každá trasa představuje jeden kabel.</div></aside></main><footer>ElektroPlan · První ověřovací verze. Značky jsou pracovní, nikoli ověřená normová knihovna. Před zavřením stránky uložte projekt do souboru JSON. Podklad ani projekt se neodesílají na server.</footer><script>
-'use strict';const $=id=>document.getElementById(id),svg=$('plan'),ns='http://www.w3.org/2000/svg';let manual=false,hoverPoint=null,dragOrigin=null,skipClick=false,doorSide=1;let w=1000,h=700,tool='scale',meters=null,calibration=null,pending=[],items=[],img=null,source=null,angle=0,seq=0;const labels={panel:'Rozvaděč',socket:'Zásuvka',light:'Svítidlo',switch1:'Spínač 1',switch5:'Spínač 5',switch6:'Přepínač 6',switch7:'Přepínač 7',route:'Kabelová trasa',wall:'Stěna',room:'Obdélník stěn',name:'Název místnosti',door:'Dveře',window:'Okno',dimension:'Kóta'};function el(tag,attrs,parent){let x=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))x.setAttribute(k,v);parent.append(x);return x}const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);const fmt=x=>x.toLocaleString('cs-CZ',{maximumFractionDigits:2});function number(id){const n=Number($(id).value);return Number.isFinite(n)?Math.max(0,id==='reserve'?Math.min(100,n):n):0}function message(s){$('status').textContent=s}const architectural=a=>['wall','room','name','door','window','dimension'].includes(a.type);
+</div><div class="paper"><svg id="plan" viewBox="0 0 1000 700" aria-label="Půdorys"><defs id="planDefs"></defs><g id="bg"></g><g id="architecture"></g><g id="drawing"></g><g id="preview" pointer-events="none"></g></svg></div><div class="status" id="status" role="status"></div></section><aside><div id="selectionPanel" hidden><h2>Vlastnosti prvku</h2><div id="selectionEditor"></div><hr></div><h2>Výkaz</h2><div class="metric">Měřítko<strong id="scaleOut">—</strong></div><div class="metric">Elektroinstalační prvky<strong id="count">0</strong></div><div class="metric">Kabely včetně rezervy<strong id="length">—</strong></div><div id="areaReport" hidden><h3>Plochy místností</h3><div id="areas"></div></div><h3>Podle typu kabelu</h3><div id="totals"></div><h3>Prvky a trasy</h3><div id="items"></div><div class="warn">Orientační výkaz. Nejde o projektovou dokumentaci ani ověřený návrh jištění. Každá trasa představuje jeden kabel.</div></aside></main><footer>ElektroPlan · První ověřovací verze. Značky jsou pracovní, nikoli ověřená normová knihovna. Před zavřením stránky uložte projekt do souboru JSON. Podklad ani projekt se neodesílají na server.</footer><dialog id="openingDialog"><form method="dialog"><h2 id="openingDialogTitle">Šířka otvoru</h2><div id="presets" class="toolgrid"></div><label>Vlastní šířka (mm)<input id="customOpening" type="number" min="100" max="10000" step="1"></label><div class="dialogActions"><button value="cancel">Zrušit</button><button id="useOpening" value="default">Použít</button></div></form></dialog><div id="contextEditor" hidden class="contextEditor"></div><script>
+'use strict';const $=id=>document.getElementById(id),svg=$('plan'),ns='http://www.w3.org/2000/svg';let selectedId=null,chooserTool=null;let manual=false,hoverPoint=null,dragOrigin=null,skipClick=false,doorSide=1;let w=1000,h=700,tool='scale',meters=null,calibration=null,pending=[],items=[],img=null,source=null,angle=0,seq=0;const labels={panel:'Rozvaděč',socket:'Zásuvka',light:'Svítidlo',switch1:'Spínač 1',switch5:'Spínač 5',switch6:'Přepínač 6',switch7:'Přepínač 7',route:'Kabelová trasa',wall:'Stěna',room:'Obdélník stěn',name:'Název místnosti',door:'Dveře',window:'Okno',dimension:'Kóta',select:'Výběr a úpravy'};function el(tag,attrs,parent){let x=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))x.setAttribute(k,v);parent.append(x);return x}const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);const fmt=x=>x.toLocaleString('cs-CZ',{maximumFractionDigits:2});function number(id){const n=Number($(id).value);return Number.isFinite(n)?Math.max(0,id==='reserve'?Math.min(100,n):n):0}function message(s){$('status').textContent=s}const architectural=a=>['wall','room','name','door','window','dimension'].includes(a.type);
 function syncMode(){
   $('manualTools').hidden=!manual;$('areaReport').hidden=!manual;$('imageTools').hidden=manual||!img;
   $('rotate').disabled=manual;
@@ -42,7 +40,7 @@ $('newPlan').onclick=()=>{
   const a=blankSize($('blankWidth').value),b=blankSize($('blankHeight').value);
   if(a===null||b===null){message('Zadejte rozměry pracovní plochy od 1000 do 100000 mm.');return}
   if((img||items.length||pending.length)&&!confirm('Vytvořit nový půdorys? Neuložené změny budou ztraceny.'))return;
-  manual=true;w=a;h=b;img=null;source=null;angle=0;meters=.01;calibration=null;items=[];seq=0;pending=[];drawBackground();setTool('wall');
+  clearSelection();manual=true;w=a;h=b;img=null;source=null;angle=0;meters=.01;calibration=null;items=[];seq=0;pending=[];drawBackground();setTool('wall');
 };
 $('newDefault').onclick=()=>$('newPlan').click();
 $('upload').onclick=()=>$('file').click();
@@ -110,10 +108,116 @@ function roomAreas(segs){
   function at(p){const x=xs.findIndex((v,i)=>i<nx&&p.x>=v&&p.x<xs[i+1]),y=ys.findIndex((v,i)=>i<ny&&p.y>=v&&p.y<ys[i+1]);return x<0||y<0?null:rooms.find(r=>r.id===ids[y*nx+x])||null}
   return {rooms,at,reason:''};
 }
-function removeItem(id){items=items.filter(a=>a.id!==id&&a.wall!==id)}
-function setTool(t){tool=t;pending=[];hoverPoint=null;$('preview').replaceChildren();$('toolTitle').textContent=t==='scale'?'Měřítko obrázku':labels[t]||'Půdorys';document.querySelectorAll('[data-for]').forEach(e=>e.hidden=!e.dataset.for.split(' ').includes(t));$('finish').hidden=t!=='route';$('liveMeasure').textContent='Zvolte počáteční bod.';document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));message(t==='door'||t==='window'?'Klikněte na stěnu v místě středu otvoru.':t==='dimension'?'Klikněte na dva konce měřené vzdálenosti.':t==='wall'?'Klikněte na začátek a táhněte myší. Zadejte přesnou délku a potvrďte klávesou Enter.':t==='room'?'Klikněte na první roh a táhněte myší nebo zadejte přesné rozměry.':t==='name'?'Zadejte název místnosti a klikněte do půdorysu.':t==='scale'?'Klikněte na dva konce známé vzdálenosti.':t==='route'?'Klikáním přidejte lomové body kabelu. Poté dokončete trasu.':'Klikněte na místo prvku v půdorysu.');render()}
+function removeItem(id){
+  const removed=new Set([id,...items.filter(a=>a.wall===id).map(a=>a.id)]);
+  items=items.filter(a=>!removed.has(a.id)&&!(a.type==='dimension'&&a.anchors?.some(r=>r&&removed.has(r.id))));
+  if(removed.has(selectedId))clearSelection();
+}
+function atSegment(seg,t){const l=dist(seg.a,seg.b);return {x:seg.a.x+(seg.b.x-seg.a.x)*t/l,y:seg.a.y+(seg.b.y-seg.a.y)*t/l}}
+function anchorPoint(ref,list,segs=segments(list)){
+  if(!ref)return null;
+  if(ref.kind==='wall'){
+    const seg=segs.find(s=>s.id===ref.id&&s.side===ref.side);
+    return seg?(ref.end===0?seg.a:seg.b):null;
+  }
+  if(ref.kind==='opening'){
+    const o=list.find(a=>a.id===ref.id&&['door','window'].includes(a.type));
+    const seg=o&&segs.find(s=>s.id===o.wall&&s.side===o.side);
+    return seg?atSegment(seg,o.pos+(ref.end===0?-1:1)*o.width/2):null;
+  }return null;
+}
+function snapCandidates(list,includeOpenings=true){
+  const ss=segments(list),out=[];
+  for(const seg of ss)for(const end of [0,1])out.push({p:end?seg.b:seg.a,ref:{kind:'wall',id:seg.id,side:seg.side,end}});
+  if(includeOpenings)for(const a of list.filter(a=>['door','window'].includes(a.type)))for(const end of [0,1]){
+    const ref={kind:'opening',id:a.id,end},p=anchorPoint(ref,list,ss);if(p)out.push({p,ref});
+  }
+  return out;
+}
+function bestSnap(p,list,tolerance,project=false){
+  const ss=segments(list);let best=null;
+  for(const c of snapCandidates(list,!project)){const d=dist(p,c.p);if(d<=tolerance&&(!best||d<best.d))best={...c,d}}
+  if(best||!project)return best;
+  const hit=nearestSegment(p,ss);if(hit&&hit.d<=tolerance)return {p:atSegment(hit.seg,hit.pos),ref:null,d:hit.d};
+  return null;
+}
+function snapTolerance(){const m=svg.getScreenCTM();return m?10/Math.max(.001,Math.hypot(m.a,m.b)):10}
+function choosePoint(p,t){
+  const hit=$('snapNodes').checked&&['wall','room','dimension'].includes(t)?bestSnap(p,items,snapTolerance(),t!=='dimension'):null;
+  return hit||{p:snapped(p),ref:null};
+}
+function dimensionPoints(a,list=items){return a.points.map((p,i)=>anchorPoint(a.anchors?.[i],list)||p)}
+function openingDistances(a,seg){return [a.pos-a.width/2,a.width,dist(seg.a,seg.b)-a.pos-a.width/2]}
+function quantizedOpening(pos,width,step){return (step>0?Math.round((pos-width/2)/step)*step:Math.round((pos-width/2)*10)/10)+width/2}
+function clearSelection(){selectedId=null;$('selectionPanel').hidden=true;$('contextEditor').hidden=true}
+function pickOpening(t){
+  chooserTool=t;const isDoor=t==='door',field=$(isDoor?'doorWidth':'windowWidth');
+  $('openingDialogTitle').textContent=isDoor?'Vyberte šířku dveří':'Vyberte šířku okna';
+  $('customOpening').value=field.value;$('presets').replaceChildren();
+  for(const mm of (isDoor?[600,700,800,900,1000,1100]:[600,800,900,1000,1200,1500,1800,2000])){
+    const b=document.createElement('button');b.type='button';b.textContent=mm+' mm';b.onclick=()=>{field.value=mm;$('openingDialog').close('chosen');setTool(t)};$('presets').append(b);
+  }
+  $('openingDialog').showModal();
+}
+$('useOpening').onclick=e=>{e.preventDefault();const n=Number($('customOpening').value);if(!Number.isInteger(n)||n<100||n>10000){$('customOpening').reportValidity();return}$(chooserTool==='door'?'doorWidth':'windowWidth').value=n;$('openingDialog').close('chosen');setTool(chooserTool)};
+$('changeOpening').onclick=()=>pickOpening(tool);
+function showOpening(id,context=null){
+  const a=items.find(x=>x.id===id&&['door','window'].includes(x.type));if(!a)return;
+  selectedId=id;setTool('select');selectedId=id;
+  $('selectionPanel').hidden=false;buildOpeningEditor($('selectionEditor'),a,false);
+  if(context){
+    const p=$('contextEditor');p.hidden=false;buildOpeningEditor(p,a,true);
+    p.style.left=Math.max(4,Math.min(context.clientX,innerWidth-p.offsetWidth-8))+'px';
+    p.style.top=Math.max(4,Math.min(context.clientY,innerHeight-p.offsetHeight-8))+'px';
+  }
+  render();
+}
+function buildOpeningEditor(host,a,popup){
+  const seg=segments(items).find(s=>s.id===a.wall&&s.side===a.side);if(!seg)return;
+  const len=dist(seg.a,seg.b);
+  host.replaceChildren();const form=document.createElement('form');form.className='openingEditor';host.append(form);
+  const title=document.createElement('strong');title.textContent=labels[a.type]+' · '+Math.round(a.width*10)+' mm';form.append(title);
+  const field=(label,value,min,max)=>{const l=document.createElement('label');l.textContent=label;const input=document.createElement('input');input.type='number';input.step='1';input.min=String(min);input.max=String(max);input.required=true;input.value=Math.round(value);l.append(input);form.append(l);return input};
+  const width=field('Šířka (mm)',a.width*10,100,10000),before=field('Od začátku osy stěny (mm)',(a.pos-a.width/2)*10,0,Math.round(len*10)),after=field('Od konce osy stěny (mm)',(len-a.pos-a.width/2)*10,0,Math.round(len*10));
+  let hinge=a.hinge,swing=a.swing;
+  const controls=document.createElement('div');controls.className='actions';form.append(controls);
+  const action=(caption,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=caption;b.onclick=fn;controls.append(b);return b};
+  const err=document.createElement('div');err.className='error';form.append(err);
+  const sync=from=>{if(from==='end')before.value=Math.round(len*10)-Number(width.value)-Number(after.value);else after.value=Math.round(len*10)-Number(width.value)-Number(before.value)};
+  width.oninput=before.oninput=()=>sync('start');after.oninput=()=>sync('end');
+  const commit=(close=false)=>{
+    if(!form.reportValidity())return false;
+    const draft={...a,width:Number(width.value)/10,pos:(Number(before.value)+Number(width.value)/2)/10,hinge,swing};
+    if(!openingFits(draft,seg,items)){err.textContent='Otvor se nevejde do stěny nebo se překrývá.';return false}
+    Object.assign(a,draft);err.textContent='';render();buildOpeningEditor($('selectionEditor'),a,false);
+    if(popup){if(close)$('contextEditor').hidden=true;else buildOpeningEditor(host,a,true)}else $('contextEditor').hidden=true;
+    message('Vlastnosti byly upraveny.');return true;
+  };
+  if(a.type==='door'){
+    action('Přehodit závěs',()=>{hinge=hinge==='start'?'end':'start';commit()});
+    action('Přehodit otevření',()=>{swing=-swing;commit()});
+  }
+  const save=document.createElement('button');save.type='submit';save.textContent='Použít';controls.append(save);
+  action('Odstranit',()=>{removeItem(a.id);render()});
+  if(popup)action('Zavřít',()=>{$('contextEditor').hidden=true});
+  form.onsubmit=e=>{e.preventDefault();commit(popup)};
+}
+function openingHit(p){
+  const ss=segments(items);let best=null;
+  for(const a of items.filter(x=>['door','window'].includes(x.type))){
+    const seg=ss.find(s=>s.id===a.wall&&s.side===a.side);if(!seg)continue;
+    const l=dist(seg.a,seg.b),ux=(seg.b.x-seg.a.x)/l,uy=(seg.b.y-seg.a.y)/l;
+    const t=(p.x-seg.a.x)*ux+(p.y-seg.a.y)*uy,n=-(p.x-seg.a.x)*uy+(p.y-seg.a.y)*ux;
+    if(t<a.pos-a.width/2-snapTolerance()/2||t>a.pos+a.width/2+snapTolerance()/2||Math.abs(n)>seg.th/2+snapTolerance())continue;
+    if(!best||Math.abs(n)<best.d)best={a,d:Math.abs(n)};
+  }return best?.a;
+}
+svg.addEventListener('contextmenu',e=>{const hit=openingHit(eventPoint(e));if(hit){e.preventDefault();showOpening(hit.id,e)}});
+document.addEventListener('pointerdown',e=>{if(!$('contextEditor').contains(e.target)&&!svg.contains(e.target))$('contextEditor').hidden=true});
+
+function setTool(t){if(t!=='select')clearSelection();tool=t;pending=[];hoverPoint=null;$('preview').replaceChildren();$('toolTitle').textContent=t==='scale'?'Měřítko obrázku':labels[t]||'Půdorys';document.querySelectorAll('[data-for]').forEach(e=>e.hidden=!e.dataset.for.split(' ').includes(t));$('finish').hidden=t!=='route';$('liveMeasure').textContent='Zvolte počáteční bod.';document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('openingHint').textContent=['door','window'].includes(t)?labels[t]+' · '+$(t==='door'?'doorWidth':'windowWidth').value+' mm':'';message(t==='select'?'Klikněte na dveře nebo okno pro úpravu.':t==='door'||t==='window'?'Najeďte na stěnu. Kóty ukazují vzdálenosti od konců osy.':t==='dimension'?'Klikněte na dva konce měřené vzdálenosti.':t==='wall'?'Klikněte na začátek a táhněte myší. Zadejte přesnou délku a potvrďte klávesou Enter.':t==='room'?'Klikněte na první roh a táhněte myší nebo zadejte přesné rozměry.':t==='name'?'Zadejte název místnosti a klikněte do půdorysu.':t==='scale'?'Klikněte na dva konce známé vzdálenosti.':t==='route'?'Klikáním přidejte lomové body kabelu. Poté dokončete trasu.':'Klikněte na místo prvku v půdorysu.');render()}
 function resetImage(){if(!source)return;manual=false;let c=document.createElement('canvas'),ctx=c.getContext('2d');let swap=angle%180!==0;c.width=swap?source.height:source.width;c.height=swap?source.width:source.height;ctx.translate(c.width/2,c.height/2);ctx.rotate(angle*Math.PI/180);ctx.drawImage(source,-source.width/2,-source.height/2);w=c.width;h=c.height;img=c.toDataURL('image/png');drawBackground();items=[];pending=[];meters=null;calibration=null;setTool('scale')}
-$('file').onchange=e=>{let f=e.target.files[0];e.target.value='';if(!f)return;let url=URL.createObjectURL(f),i=new Image();i.onload=()=>{if((manual||items.length||meters||pending.length)&&!confirm('Nahradit podklad a smazat dosavadní prvky?')){URL.revokeObjectURL(url);return}source=i;angle=0;resetImage();URL.revokeObjectURL(url)};i.onerror=()=>{message('Obrázek se nepodařilo načíst.');URL.revokeObjectURL(url)};i.src=url};$('rotate').onclick=()=>{if(!source)return;if((items.length||meters)&&!confirm('Otočením se smažou prvky a měřítko. Pokračovat?'))return;angle=(angle+90)%360;resetImage()};document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
+$('file').onchange=e=>{let f=e.target.files[0];e.target.value='';if(!f)return;let url=URL.createObjectURL(f),i=new Image();i.onload=()=>{if((manual||items.length||meters||pending.length)&&!confirm('Nahradit podklad a smazat dosavadní prvky?')){URL.revokeObjectURL(url);return}source=i;angle=0;resetImage();URL.revokeObjectURL(url)};i.onerror=()=>{message('Obrázek se nepodařilo načíst.');URL.revokeObjectURL(url)};i.src=url};$('rotate').onclick=()=>{if(!source)return;if((items.length||meters)&&!confirm('Otočením se smažou prvky a měřítko. Pokračovat?'))return;angle=(angle+90)%360;resetImage()};document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>['door','window'].includes(b.dataset.tool)?pickOpening(b.dataset.tool):setTool(b.dataset.tool));
 function eventPoint(e){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());return {x:p.x,y:p.y}}
 function exactGeometry(a,p,t,opts){
   const parse=v=>v===''?null:(Number.isInteger(Number(v))&&Number(v)>0?Number(v)/10:NaN);
@@ -134,7 +238,7 @@ function openingAt(p,hit){
   const seg=hit.seg,dx=seg.b.x-seg.a.x,dy=seg.b.y-seg.a.y;
   const cross=dx*(p.y-seg.a.y)-dy*(p.x-seg.a.x);
   if(Math.abs(cross)>1e-7)doorSide=cross>0?1:-1;
-  return {id:seq+1,type:tool,wall:seg.id,side:seg.side,pos:hit.pos,width:Number($(tool==='door'?'doorWidth':'windowWidth').value)/10,hinge:$('hinge').value,swing:Number($('swing').value)||doorSide};
+  return {id:seq+1,type:tool,wall:seg.id,side:seg.side,pos:quantizedOpening(hit.pos,Number($(tool==='door'?'doorWidth':'windowWidth').value)/10,number('snap')),width:Number($(tool==='door'?'doorWidth':'windowWidth').value)/10,hinge:$('hinge').value,swing:Number($('swing').value)||doorSide};
 }
 function drawPreview(){
   const g=$('preview');g.replaceChildren();if(!manual)return;
@@ -143,7 +247,7 @@ function drawPreview(){
   const label=(p,t)=>{el('text',{x:p.x,y:p.y-ts,fill:'#0369a1','font-size':ts,'font-weight':600,'text-anchor':'middle',stroke:'#fff','stroke-width':3,'paint-order':'stroke'},g).textContent=t};
   if(['wall','room'].includes(tool)){
     if(!pending.length){$('liveMeasure').textContent='Zvolte počáteční bod.';return}
-    const a=pending[0],p=hoverPoint?snapped(hoverPoint):{x:a.x+10,y:a.y+10},b=geometryEnd(a,p);
+    const a=pending[0],p=hoverPoint?choosePoint(hoverPoint,tool).p:{x:a.x+10,y:a.y+10},b=geometryEnd(a,p);
     if(!b){$('liveMeasure').textContent='Zvolte platný rozměr.';return}
     const valid=b.x>=0&&b.y>=0&&b.x<=w&&b.y<=h,c=valid?'#0284c7':'#dc2626',th=Math.max(1,number('wallThickness')/10);
     if(tool==='wall'){line(a,b,c,th,'4 2');const t=Math.round(dist(a,b)*10)+' mm';label({x:(a.x+b.x)/2,y:(a.y+b.y)/2},t);$('liveMeasure').textContent=t}
@@ -153,33 +257,34 @@ function drawPreview(){
     const a=openingAt(hoverPoint,hit),seg=hit.seg,ux=(seg.b.x-seg.a.x)/hit.len,uy=(seg.b.y-seg.a.y)/hit.len,at=(t,n=0)=>({x:seg.a.x+ux*t-uy*n,y:seg.a.y+uy*t+ux*n});
     if(!Number.isFinite(a.width)||a.width<=0)return;
     const lo=a.pos-a.width/2,hi=a.pos+a.width/2,c=openingFits(a,seg,items)?'#0284c7':'#dc2626';
-    line(at(lo),at(hi),c,Math.max(3,seg.th*.65));label(at(a.pos),Math.round(a.width*10)+' mm');
+    line(at(lo),at(hi),c,Math.max(3,seg.th*.65));
+    const parts=[0,lo,hi,hit.len],offset=-(seg.th/2+ts*2.2);
+    for(let i=0;i<3;i++){const A=at(parts[i],offset),B=at(parts[i+1],offset);line(A,B,c,1);line(at(parts[i]),A,c,.7);line(at(parts[i+1]),B,c,.7);label(at((parts[i]+parts[i+1])/2,offset),Math.round((parts[i+1]-parts[i])*10)+' mm')}
     if(tool==='door'){const pivot=a.hinge==='start'?lo:hi,other=a.hinge==='start'?hi:lo,base=at(pivot),end=at(pivot,a.swing*a.width),closed=at(other),sweep=(a.hinge==='start'?a.swing:-a.swing)>0?1:0;line(base,end,c,2);el('path',{d:`M${closed.x} ${closed.y} A${a.width} ${a.width} 0 0 ${sweep} ${end.x} ${end.y}`,fill:'none',stroke:c,'stroke-width':1.5},g)}
   }
 }
 function confirmGeometry(){if(!pending.length||!['wall','room'].includes(tool))return;const a=pending[0],p=hoverPoint||{x:a.x+10,y:a.y+10};if(tool==='wall'&&!$('wallLength').value){message('Zadejte přesnou délku nebo klikněte na konec stěny.');return}if(tool==='room'&&(!$('roomWidth').value||!$('roomHeight').value)){message('Zadejte šířku i výšku nebo klikněte na konečný roh.');return}placePoint(p)}
 $('confirmGeometry').onclick=confirmGeometry;
-for(const id of ['wallLength','roomWidth','roomHeight','wallThickness','direction','orthogonal','doorWidth','windowWidth','hinge','swing'])$(id).addEventListener('input',drawPreview);
-$('flipHinge').onclick=()=>{$('hinge').value=$('hinge').value==='start'?'end':'start';drawPreview()};
-$('flipSwing').onclick=()=>{$('swing').value=String(-(Number($('swing').value)||doorSide));drawPreview()};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){pending=[];render();drawPreview();return}if(e.key==='Enter'&&['wallLength','roomWidth','roomHeight'].includes(document.activeElement.id)){e.preventDefault();confirmGeometry()}});
+for(const id of ['wallLength','roomWidth','roomHeight','wallThickness','direction','orthogonal','doorWidth','windowWidth','hinge','swing','snap','snapNodes'])$(id).addEventListener('input',drawPreview);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){clearSelection();pending=[];render();drawPreview();return}if(e.key==='Enter'&&['wallLength','roomWidth','roomHeight'].includes(document.activeElement.id)){e.preventDefault();confirmGeometry()}});
 svg.addEventListener('pointermove',e=>{hoverPoint=eventPoint(e);if(dragOrigin&&!dragOrigin.started&&Math.hypot(e.clientX-dragOrigin.x,e.clientY-dragOrigin.y)>7){dragOrigin.started=true;placePoint(dragOrigin.p)}drawPreview()});
 svg.addEventListener('pointerdown',e=>{if(e.button===0&&manual&&!pending.length&&['wall','room'].includes(tool))dragOrigin={p:eventPoint(e),x:e.clientX,y:e.clientY}});
 svg.addEventListener('pointerup',e=>{if(!dragOrigin)return;const d=dragOrigin;dragOrigin=null;if(d.started||Math.hypot(e.clientX-d.x,e.clientY-d.y)>7){if(!d.started)placePoint(d.p);hoverPoint=eventPoint(e);if(pending.length)placePoint(hoverPoint);skipClick=true;setTimeout(()=>skipClick=false,0)}});
 svg.addEventListener('pointercancel',()=>{if(dragOrigin?.started){pending=[];render();drawPreview()}dragOrigin=null});svg.addEventListener('pointerleave',()=>{if(dragOrigin){if(dragOrigin.started){pending=[];render();drawPreview()}dragOrigin=null}});
 svg.addEventListener('click',e=>{if(skipClick){skipClick=false;return}hoverPoint=eventPoint(e);placePoint(hoverPoint)});
 function placePoint(p){if(!img&&!manual){message('Nejprve nahrajte nebo vytvořte půdorys.');return}if(p.x<0||p.y<0||p.x>w||p.y>h)return;
-if(manual&&!['door','window'].includes(tool))p=snapped(p);
+if(tool==='select'){const hit=openingHit(p);if(hit)showOpening(hit.id);else{clearSelection();render()}return}
+const chosen=manual&&!['door','window'].includes(tool)?choosePoint(p,tool):{p,ref:null};p=chosen.p;
 if(tool==='door'||tool==='window'){
   const hit=nearestSegment(p,segments(items));
   if(!hit||hit.d>Math.max(12,hit.seg.th/2+6)){message('Klikněte blíže ke stěně.');return}
   const a=openingAt(p,hit);
   if(!openingFits(a,hit.seg,items)){message('Otvor se nevejde do stěny nebo se překrývá s jiným otvorem.');return}
-  seq++;items.push(a);message('Otvor byl přidán.');
+  seq++;items.push(a);showOpening(a.id);message('Otvor byl přidán. Upravte vlastnosti vpravo.');return;
 }else if(tool==='dimension'){
-  if(!pending.length){pending.push(p);render();return}
+  if(!pending.length){pending.push({...p,anchor:chosen.ref});render();return}
   if(!dist(pending[0],p)){message('Vyberte dva různé body.');return}
-  items.push({id:++seq,type:'dimension',points:[pending[0],p]});pending=[];
+  items.push({id:++seq,type:'dimension',points:[{x:pending[0].x,y:pending[0].y},p],anchors:[pending[0].anchor||null,chosen.ref]});pending=[];
 }else if(tool==='wall'||tool==='room'){
   if(!manual)return;
   if(!pending.length){pending.push(p);render();if(tool==='wall')$('wallLength').focus();else $('roomWidth').focus();return}
@@ -222,6 +327,7 @@ function routeLength(a){return meters===null?null:(a.points.slice(1).reduce((s,p
     const at=(t,n=0)=>({x:seg.a.x+ux*t+nx*n,y:seg.a.y+uy*t+ny*n});
     for(const a of openings.filter(a=>a.wall===seg.id&&a.side===seg.side)){
       const lo=a.pos-a.width/2,hi=a.pos+a.width/2;
+      if(a.id===selectedId)line(at(lo),at(hi),'#38bdf8',seg.th*.65);
       if(a.type==='window'){
         for(const n of [-seg.th/2,0,seg.th/2])line(at(lo,n),at(hi,n),'#0284c7',1.2);
         for(const t of [lo,hi])line(at(t,-seg.th/2),at(t,seg.th/2),'#0284c7',1.2);
@@ -234,7 +340,7 @@ function routeLength(a){return meters===null?null:(a.points.slice(1).reduce((s,p
     }
     if($('autoDimensions').checked)dimension(seg.a,seg.b,-seg.th/2-textSize*1.8);
   }
-  for(const a of items.filter(x=>x.type==='dimension'))dimension(...a.points,textSize*1.7);
+  for(const a of items.filter(x=>x.type==='dimension'))dimension(...dimensionPoints(a),textSize*1.7);
   const result=roomAreas(segs),names=items.filter(x=>x.type==='name'),areas=$('areas');areas.replaceChildren();
   const add=t=>{const d=document.createElement('div');d.className='item';d.textContent=t;areas.append(d)};
   if(result.reason)add(result.reason);
@@ -252,11 +358,11 @@ function routeLength(a){return meters===null?null:(a.points.slice(1).reduce((s,p
   for(const a of names)label(a.p.x,a.p.y,a.name);
 }
 
-if(calibration){poly(calibration.points,'#9333ea',true);let [a,b]=calibration.points;el('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-r,fill:'#9333ea','font-size':r*1.7,'text-anchor':'middle'},g).textContent=fmt(calibration.mm)+' mm'}for(let a of items){if(architectural(a))continue;if(a.type==='route'){poly(a.points,'#0284c7');continue}let {x,y}=a.p,c=a.type==='light'?'#d97706':a.type.startsWith('switch')?'#15803d':'#0369a1';if(a.type==='panel'){el('rect',{x:x-r*1.5,y:y-r,width:r*3,height:r*2,fill:'#334155'},g);el('text',{x,y:y+r*.45,'text-anchor':'middle',fill:'white','font-size':r*1.2},g).textContent='R'}else{el('circle',{cx:x,cy:y,r,fill:'white',stroke:c,'stroke-width':r*.2},g);if(a.type==='socket')el('path',{d:`M${x-r*.32} ${y-r*.45}v${r*.9} M${x+r*.32} ${y-r*.45}v${r*.9}`,stroke:c,'stroke-width':r*.16},g);else if(a.type==='light')el('path',{d:`M${x-r*.7} ${y-r*.7}l${r*1.4} ${r*1.4} m${-r*1.4} 0l${r*1.4} ${-r*1.4}`,stroke:c,'stroke-width':r*.16},g);else el('text',{x,y:y+r*.45,fill:c,'font-size':r*1.3,'text-anchor':'middle'},g).textContent=a.type.slice(-1)}}poly(pending,tool==='scale'?'#9333ea':'#0284c7',true);for(let p of pending)el('circle',{cx:p.x,cy:p.y,r:r*.45,fill:'#9333ea'},g);$('scaleOut').textContent=meters?fmt(meters*1000)+' mm/px':'—';$('count').textContent=items.filter(a=>a.type!=='route'&&!architectural(a)).length;let total=0,by=Object.create(null);for(let a of items.filter(a=>a.type==='route')){let l=routeLength(a);if(l!==null){total+=l;by[a.cable]=(by[a.cable]||0)+l}}$('length').textContent=meters===null?'—':fmt(total)+' m';$('totals').replaceChildren();for(let [k,v] of Object.entries(by)){let d=document.createElement('div');d.className='item';d.textContent=k+' · '+fmt(v)+' m';$('totals').append(d)}$('items').replaceChildren();for(let a of items){let d=document.createElement('div');d.className='item';let t=document.createElement('span');t.textContent=a.id+' · '+(a.type==='route'?a.cable+' · '+fmt(routeLength(a)||0)+' m':a.type==='wall'?labels.wall+' · '+fmt(dist(...a.points)*meters)+' m':a.type==='room'?labels.room+' · '+fmt(Math.abs(a.points[0].x-a.points[1].x)*meters)+' × '+fmt(Math.abs(a.points[0].y-a.points[1].y)*meters)+' m':a.type==='name'?a.name:a.type==='door'||a.type==='window'?labels[a.type]+' · '+fmt(Math.round(a.width*10))+' mm':a.type==='dimension'?'Kóta · '+fmt(dist(...a.points)*10)+' mm':labels[a.type]);let b=document.createElement('button');b.textContent='×';b.title='Odstranit';b.onclick=()=>{removeItem(a.id);render()};d.append(t,b);$('items').append(d)}}$('export').onclick=()=>{if(!img&&!manual){message('Nejprve nahrajte nebo vytvořte půdorys.');return}if(pending.length&&!confirm('Rozpracovaný prvek, trasa nebo kalibrace se neuloží. Pokračovat?'))return;let o={verze:3,rezim:manual?'kresba':'obrazek',podklad:img,rozmery:{sirka:w,vyska:h},meritko:meters,kalibrace:calibration,rezerva:number('reserve'),zobrazeni:{koty:$('autoDimensions').checked,plochy:$('showAreas').checked},prvky:items};let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:'application/json'}));a.href=u;a.download='elektroplan-projekt.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+if(calibration){poly(calibration.points,'#9333ea',true);let [a,b]=calibration.points;el('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-r,fill:'#9333ea','font-size':r*1.7,'text-anchor':'middle'},g).textContent=fmt(calibration.mm)+' mm'}for(let a of items){if(architectural(a))continue;if(a.type==='route'){poly(a.points,'#0284c7');continue}let {x,y}=a.p,c=a.type==='light'?'#d97706':a.type.startsWith('switch')?'#15803d':'#0369a1';if(a.type==='panel'){el('rect',{x:x-r*1.5,y:y-r,width:r*3,height:r*2,fill:'#334155'},g);el('text',{x,y:y+r*.45,'text-anchor':'middle',fill:'white','font-size':r*1.2},g).textContent='R'}else{el('circle',{cx:x,cy:y,r,fill:'white',stroke:c,'stroke-width':r*.2},g);if(a.type==='socket')el('path',{d:`M${x-r*.32} ${y-r*.45}v${r*.9} M${x+r*.32} ${y-r*.45}v${r*.9}`,stroke:c,'stroke-width':r*.16},g);else if(a.type==='light')el('path',{d:`M${x-r*.7} ${y-r*.7}l${r*1.4} ${r*1.4} m${-r*1.4} 0l${r*1.4} ${-r*1.4}`,stroke:c,'stroke-width':r*.16},g);else el('text',{x,y:y+r*.45,fill:c,'font-size':r*1.3,'text-anchor':'middle'},g).textContent=a.type.slice(-1)}}poly(pending,tool==='scale'?'#9333ea':'#0284c7',true);for(let p of pending)el('circle',{cx:p.x,cy:p.y,r:r*.45,fill:'#9333ea'},g);$('scaleOut').textContent=meters?fmt(meters*1000)+' mm/px':'—';$('count').textContent=items.filter(a=>a.type!=='route'&&!architectural(a)).length;let total=0,by=Object.create(null);for(let a of items.filter(a=>a.type==='route')){let l=routeLength(a);if(l!==null){total+=l;by[a.cable]=(by[a.cable]||0)+l}}$('length').textContent=meters===null?'—':fmt(total)+' m';$('totals').replaceChildren();for(let [k,v] of Object.entries(by)){let d=document.createElement('div');d.className='item';d.textContent=k+' · '+fmt(v)+' m';$('totals').append(d)}$('items').replaceChildren();for(let a of items){let d=document.createElement('div');d.className='item';let t=document.createElement('span');t.textContent=a.id+' · '+(a.type==='route'?a.cable+' · '+fmt(routeLength(a)||0)+' m':a.type==='wall'?labels.wall+' · '+fmt(dist(...a.points)*meters)+' m':a.type==='room'?labels.room+' · '+fmt(Math.abs(a.points[0].x-a.points[1].x)*meters)+' × '+fmt(Math.abs(a.points[0].y-a.points[1].y)*meters)+' m':a.type==='name'?a.name:a.type==='door'||a.type==='window'?labels[a.type]+' · '+fmt(Math.round(a.width*10))+' mm':a.type==='dimension'?'Kóta · '+fmt(Math.round(dist(...dimensionPoints(a))*10))+' mm':labels[a.type]);let b=document.createElement('button');b.textContent='×';b.title='Odstranit';b.onclick=()=>{removeItem(a.id);render()};if(['door','window'].includes(a.type)){t.className='selectable';t.onclick=()=>showOpening(a.id)}d.append(t,b);$('items').append(d)}}$('export').onclick=()=>{if(!img&&!manual){message('Nejprve nahrajte nebo vytvořte půdorys.');return}if(pending.length&&!confirm('Rozpracovaný prvek, trasa nebo kalibrace se neuloží. Pokračovat?'))return;let o={verze:4,rezim:manual?'kresba':'obrazek',podklad:img,rozmery:{sirka:w,vyska:h},meritko:meters,kalibrace:calibration,rezerva:number('reserve'),zobrazeni:{koty:$('autoDimensions').checked,plochy:$('showAreas').checked,krok:number('snap'),body:$('snapNodes').checked},prvky:items};let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:'application/json'}));a.href=u;a.download='elektroplan-projekt.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 function validProject(o){
   const finite=(n)=>typeof n==='number'&&Number.isFinite(n);
   const positive=n=>finite(n)&&n>0;
-  if(!o||![1,2,3].includes(o.verze)||!o.rozmery||!Number.isFinite(o.rozmery.sirka)||!Number.isFinite(o.rozmery.vyska)||o.rozmery.sirka<=0||o.rozmery.vyska<=0)throw Error('Nepodporovaný formát nebo rozměry projektu.');
+  if(!o||![1,2,3,4].includes(o.verze)||!o.rozmery||!Number.isFinite(o.rozmery.sirka)||!Number.isFinite(o.rozmery.vyska)||o.rozmery.sirka<=0||o.rozmery.vyska<=0)throw Error('Nepodporovaný formát nebo rozměry projektu.');
   const drawing=o.verze>=2&&o.rezim==='kresba';
   if(drawing){if(Math.abs(o.rozmery.sirka*10-Math.round(o.rozmery.sirka*10))>1e-7||Math.abs(o.rozmery.vyska*10-Math.round(o.rozmery.vyska*10))>1e-7)throw Error('Rozměry plochy musejí být v celých milimetrech.')}else if(!Number.isSafeInteger(o.rozmery.sirka)||!Number.isSafeInteger(o.rozmery.vyska))throw Error('Neplatné rozměry obrázku.');
   if(o.verze>=2&&!['kresba','obrazek'].includes(o.rezim))throw Error('Neplatný režim půdorysu.');
@@ -290,6 +396,7 @@ function validProject(o){
     }else if(!point(a.p))throw Error('Neplatná poloha prvku.');
   }
   const segs=segments(o.prvky);
+  for(const a of o.prvky.filter(x=>x.type==='dimension'&&x.anchors!==undefined)){if(!Array.isArray(a.anchors)||a.anchors.length!==2||a.anchors.some(r=>r!==null&&(!r||![0,1].includes(r.end)||!anchorPoint(r,o.prvky,segs))))throw Error('Neplatné body kóty.');}
   for(const a of o.prvky.filter(x=>x.type==='door'||x.type==='window'))if(!openingFits(a,segs.find(s=>s.id===a.wall&&s.side===a.side),o.prvky))throw Error('Otvor nemá platnou stěnu.');
   return o;
 }
@@ -305,8 +412,8 @@ $('projectFile').onchange=async e=>{
     if(!drawing)await new Promise((resolve,reject)=>{i.onload=resolve;i.onerror=()=>reject(Error('Podklad se nepodařilo načíst.'));i.src=o.podklad});
     if(i&&(i.naturalWidth!==o.rozmery.sirka||i.naturalHeight!==o.rozmery.vyska))throw Error('Rozměry podkladu neodpovídají projektu.');
     if((img||manual||items.length||pending.length)&&!confirm('Nahradit aktuální projekt? Neuložené změny budou ztraceny.'))return;
-    manual=drawing;source=i;angle=0;img=o.podklad;w=o.rozmery.sirka;h=o.rozmery.vyska;meters=o.meritko;calibration=o.kalibrace;items=o.prvky;seq=items.reduce((m,a)=>Math.max(m,a.id),0);
-    $('reserve').value=o.rezerva;$('autoDimensions').checked=o.zobrazeni?.koty!==false;$('showAreas').checked=o.zobrazeni?.plochy!==false;if(calibration)$('known').value=calibration.mm;
+    clearSelection();manual=drawing;source=i;angle=0;img=o.podklad;w=o.rozmery.sirka;h=o.rozmery.vyska;meters=o.meritko;calibration=o.kalibrace;items=o.prvky;seq=items.reduce((m,a)=>Math.max(m,a.id),0);
+    $('reserve').value=o.rezerva;$('autoDimensions').checked=o.zobrazeni?.koty!==false;$('showAreas').checked=o.zobrazeni?.plochy!==false;$('snapNodes').checked=o.zobrazeni?.body!==false;const step=String(o.zobrazeni?.krok??10);$('snap').value=[...$('snap').options].some(x=>x.value===step)?step:'10';if(calibration)$('known').value=calibration.mm;
     drawBackground();if(manual){$('blankWidth').value=Math.round(w*10);$('blankHeight').value=Math.round(h*10)}
     setTool(manual?'wall':'scale');message('Projekt byl načten.');
   }catch(err){message('Projekt nelze otevřít: '+(err instanceof SyntaxError?'Neplatný soubor JSON.':err.message))}
