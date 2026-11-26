@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.15
+## Prototyp 0.1.16
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -123,3 +123,7 @@ Fialové plné propojovací úseky jsou pouze předběžný odhad délky mezi so
 Výkaz **Krabice a ovládání** počítá jednu přístrojovou krabici pro každý zakreslený spínač či přepínač; skutečný typ a počet pro sestavy je třeba ověřit. Samostatné odbočné krabice se vykazují jen při jejich vložení. Spoje mohou být podle zvoleného řešení v vhodné přístrojové krabici, není nutná samostatná odbočná krabice pro každý přepínač. Svorky, velikost krabic, skupiny řazení 6+6 a úplná schémata zapojení zatím nejsou automaticky dimenzovány.
 
 Formát projektu 10 ukládá propojovací kabely s odkazy na přepínače. Starší projekty zůstávají čitelné. Zdroje k principu řazení: [iElektra](https://www.ielektra.cz/rsc4885511-schodistovy-vypinac-ze-3-mist-a-dalsi-zapojeni), [Tympol Plus](https://www.tympolplus.cz/obsah/zapojeni-vypinacu).
+
+## Aktivní režim a stav tlačítek (0.1.16)
+
+Aktivní nástroj a předvolba zobrazení mají výrazné modré pozadí, odlišné od světle modrého stavu při najetí myší. Režim zobrazení se určuje podle aktuálních filtrů, včetně viditelnosti vodítek. Pokud nastavení neodpovídá žádné předvolbě, zobrazí se stav Vlastní. Předvolby Půdorys a Vše zapnou všechny dílčí kóty; Elektro vypne jejich hlavní přepínač a dočasně zneaktivní dílčí volby. Formát projektu se nemění.
