@@ -423,7 +423,7 @@ document.addEventListener('keydown',e=>{const editing=e.target?.matches?.('input
 svg.addEventListener('pointermove',e=>{hoverPoint=eventPoint(e);if(dragOrigin&&!dragOrigin.started&&Math.hypot(e.clientX-dragOrigin.x,e.clientY-dragOrigin.y)>7){dragOrigin.started=true;placePoint(dragOrigin.p)}drawPreview()});
 svg.addEventListener('pointerdown',e=>{if(e.button===0&&manual&&!pending.length&&['wall','room'].includes(tool))dragOrigin={p:eventPoint(e),x:e.clientX,y:e.clientY}});
 svg.addEventListener('pointerup',e=>{if(!dragOrigin)return;const d=dragOrigin;dragOrigin=null;if(d.started||Math.hypot(e.clientX-d.x,e.clientY-d.y)>7){if(!d.started)placePoint(d.p);hoverPoint=eventPoint(e);if(pending.length)placePoint(hoverPoint);skipClick=true;setTimeout(()=>skipClick=false,0)}});
-svg.addEventListener('pointercancel',()=>{if(dragOrigin?.started){pending=[];render();drawPreview()}dragOrigin=null});svg.addEventListener('pointerleave',()=>{if(dragOrigin){if(dragOrigin.started){pending=[];render();drawPreview()}dragOrigin=null}});
+svg.addEventListener('pointercancel',()=>{if(dragOrigin?.started){pending=[];render();drawPreview()}dragOrigin=null});svg.addEventListener('pointerleave',()=>{if(dragOrigin){if(dragOrigin.started){pending=[];render();drawPreview()}dragOrigin=null}if(tool==='erase'){hoverPoint=null;drawPreview()}});
 svg.addEventListener('click',e=>{if(skipClick){skipClick=false;return}hoverPoint=eventPoint(e);placePoint(hoverPoint)});
 function placePoint(p){if(!img&&!manual){message('Nejprve nahrajte nebo vytvořte půdorys.');return}if(p.x<0||p.y<0||p.x>w||p.y>h)return;
 if(tool==='erase'){eraseAt(p);return}
@@ -447,7 +447,7 @@ if(tool==='door'||tool==='window'){
   const b=geometryEnd(a,p);
   if(!b||b.x<0||b.y<0||b.x>w||b.y>h){message('Neplatný rozměr nebo konec mimo pracovní plochu.');return}
   recordChange();items.push({id:++seq,type:tool,points:[a,b],thickness:th});pending=[];
-  message(tool==='wall'?'Stěna byla přidána.':'Obdélník byl přidán.');$('wallLength').value='';$('roomWidth').value='';$('roomHeight').value='';
+  message(tool==='wall'?'Stěna byla přidána.':'Obdélník byl přidán.');$('wallLength').value='';$('roomWidth').value='';$('roomHeight').value='';if(['wallLength','roomWidth','roomHeight'].includes(document.activeElement?.id))document.activeElement.blur();
 }else if(tool==='name'){
   const name=$('roomName').value.trim();if(!name){message('Zadejte název místnosti.');return}
   recordChange();items.push({id:++seq,type:'name',p,name});
