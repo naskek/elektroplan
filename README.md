@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.5
+## Prototyp 0.1.6
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -19,7 +19,7 @@ Aplikace neodesílá podklad na server. Export obsahuje obrázek půdorysu, prot
 ## Otvory, kóty a plochy
 
 - **Dveře / Okno:** nastavte samostatně šířku dveří nebo okna v horním panelu. Přesuňte kurzor na stěnu; náhled ukazuje umístění a orientaci před kliknutím. Dveře se standardně otevírají na stranu kurzoru; závěs i směr lze přehodit tlačítky. Otvor je vázán na konkrétní stěnu; při jejím odstranění se odstraní také otvor. Otvory nesmějí přesahovat stěnu ani se překrývat na stejném úseku.
-- **Automatické kóty:** zobrazují délky os stěn a šířky otvorů v milimetrech. **Ruční kóta** měří vzdálenost mezi dvěma vybranými body. Kóty zatím nelze přesouvat ani měnit jejich text přímo.
+- **Automatické kóty:** zobrazují čisté vnitřní rozměry uzavřených místností a šířky otvorů v milimetrech. **Ruční kóta** měří vzdálenost mezi dvěma vybranými body. Kóty zatím nelze přesouvat ani měnit jejich text přímo.
 - **Plochy místností:** aplikace automaticky vyhledá uzavřené prostory mezi pravoúhlými stěnami a vypočítá jejich čistou geometrickou plochu a obvod podle vnitřních hran stěn. Dveřní a okenní otvory se pro rozdělení místností považují za uzavřené. Název místnosti je přiřazen podle polohy popisku.
 - Šikmé stěny zatím nejsou podporovány automatickým výpočtem ploch. U složitých nebo nezavřených půdorysů se plocha nemusí zobrazit. Výsledek není úřední výměrou podlahové plochy. Otvory umísťujte mimo křížení stěn a neduplikujte společné stěny.
 
@@ -48,3 +48,7 @@ Pracovní prototyp není projektovou dokumentací ani nástrojem pro ověřený 
 - Projektový formát 4 ukládá body kót a nastavení kroku. Starší formáty 1–3 zůstávají podporovány.
 
 Omezení: vzdálenosti otvorů se měří od konců osy vybraného úseku, nikoli od líce sousední stěny. Přichycení zatím nenahrazuje úplný uzlový model stěn ani automatické řešení složitých křižovatek. Vlastnosti již nakreslených stěn se zatím neupravují.
+
+## Vnitřní kótování (0.1.6)
+
+Automatické kóty vycházejí z vnitřních hran stěn, které se používají také k výpočtu plochy. U obdélníkové místnosti se zobrazuje jedna vodorovná a jedna svislá kóta uvnitř místnosti. U členitých pravoúhlých místností se kótují jednotlivé úseky vnitřního obvodu. Například obdélník 2000 × 3000 mm mezi osami se stěnami tloušťky 150 mm má čisté rozměry 1850 × 2850 mm a plochu 5,2725 m². Samotná geometrie stěn zůstává osová. U otevřených obvodů a šikmých stěn se automatické vnitřní kóty nevytvářejí. Ruční kóty a polohování otvorů zatím používají dosavadní body přichycení; šířky otvorů se automaticky kótují od líce stěny. Tloušťka povrchových úprav se samostatně nezadává.
