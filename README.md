@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.13
+## Prototyp 0.1.14
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -107,3 +107,9 @@ Pro běžné zásuvkové okruhy je kontrolováno nejvýše 10 vývodů podle ve�
 Při vložení svítidla lze zadat příkon ve W; prázdná hodnota zůstane neznámá, nikoli nulová. Příkon lze upravit ve vlastnostech prvku. Výkaz sčítá známé příkony a uvádí počet neznámých. Orientační proud je vypočten pouze při známých příkonech za předpokladu 230 V a účiníku 1. Přidáno řazení 6+6 (dvojitý střídavý přepínač). Značka je pracovní. Okruh je zatím pouze souvislá trasa s odkazy na prvky, nikoli ověřené schéma zapojení spínačů. Světelné okruhy se spínači vyžadují kontrolu zapojení a počtu žil; jeden typ kabelu platí pro celou trasu, výchozí světelný kabel je neurčený. Větvení, skupiny ovládání, samostatné typy kabelů pro úseky, jističe a automatické svislé délky zatím nejsou řešeny.
 
 Přesun připojeného prvku aktualizuje odpovídající body automatického okruhu, ale nepřepočítává celou trasu podle stěn. Před odstraněním připojeného prvku odstraňte jeho okruh. Formát projektu 9 ukládá vazby, provedení dvojzásuvek a příkony; starší projekty zůstávají čitelné, staré ruční trasy se automaticky nepřevádějí.
+
+## Přesun elektroinstalačních prvků (0.1.14)
+
+Nástrojem **Výběr a úpravy** (V) klikněte na značku nebo ji přetáhněte levým tlačítkem myši. Vybraný prvek má modré orámování. V ručně kresleném půdorysu se používá aktuální krok kreslení a přichycení; podržením Alt lze při tažení přichycení dočasně vypnout. Esc zruší rozpracované tažení. Pravé tlačítko nadále otevírá vlastnosti. Přesun je jednou změnou v historii a podporuje Ctrl+Z a Ctrl+Y.
+
+Navázané body automatických okruhů se přesunují současně s prvkem, délky se po dokončení přepočítají. Mezilehlé lomové body zůstávají na svém místě; trasa se automaticky nepřesměrovává kolem stěn. Pokud v původní poloze leží bod ručně kreslené trasy bez vazby, aplikace před přesunem upozorní, že tato trasa nebude změněna. Formát projektu se nemění (verze 9).
