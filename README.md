@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.17
+## Prototyp 0.1.18
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -133,3 +133,9 @@ Aktivní nástroj a předvolba zobrazení mají výrazné modré pozadí, odliš
 Průvodce ovládáním z více míst vytváří vodorovné a svislé úseky namísto přímých diagonál. Z dvojice základních tras vybere variantu s menším počtem příčných průchodů zakreslenými stěnami. Jde o orientační pravidlo, nikoli automatický návrh instalačních zón nebo bezpečného průchodu konstrukcí. Pravým tlačítkem na propojovací kabel lze změnit směr vedení, přehodit roh nebo zadat mezilehlou souřadnici X či Y v mm od počátku pracovní plochy (prázdná hodnota = základní roh). Délka se počítá ze všech úseků, svislé délky se zadávají ručně. Při přesunu přepínače se pravoúhlý tvar obnoví při zachování vybrané varianty a případné mezilehlé souřadnice. Ruční kabelové trasy se nemění.
 
 Formát projektu 11 ukládá směr a mezilehlou souřadnici. Při načtení projektu verze 10 se staré automatické diagonální spoje přepínačů převedou na pravoúhlé trasy, což může zvýšit výkaz délky kabelů. Automatické vedení podél všech stěn, výšky prvků, napojení odbočných krabic a ověření zapojení zatím nejsou řešeny.
+
+## Pravoúhlé kabelové trasy (0.1.18)
+
+Všechny nově kreslené trasy, automatické okruhy i ruční světelné, zásuvkové, datové a ostatní trasy, jsou vedeny vodorovně a svisle. Každé kliknutí přidá zvolený bod; mezi dvěma body se podle potřeby vloží pravoúhlý roh. Volba **Směr rohu** určuje směr dalšího úseku: automaticky (méně příčných průchodů stěnami), vodorovně → svisle nebo svisle → vodorovně. Náhled zobrazuje stejný tvar jako výsledná trasa. Dalšími kliknutími lze určit vlastní lomové body. Zpět a znovu pracují s uživatelskými body, nikoli s jednotlivými automaticky vloženými rohy.
+
+Formát projektu 12 ukládá uživatelské body, směry rohů a výslednou geometrii. Při přesunu navázaného prvku automatického okruhu se zachovají ostatní uživatelské body a obnoví pravoúhlý tvar. Délka se počítá z výsledných úseků včetně ručně zadané svislé délky a rezervy. Starší běžné trasy se při otevření nemění; ve vlastnostech trasy lze po potvrzení použít **Převést na pravoúhlou trasu**. Převod zachovává původní uživatelské body a vazby automatického okruhu, může ale zvýšit délku. Předešlý převod automatických propojení přepínačů z formátu 10 zůstává zachován. Algoritmus nenavrhuje úplnou trasu kolem překážek ani instalační zóny; skutečné vedení je třeba ověřit.
