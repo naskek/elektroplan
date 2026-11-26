@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.4
+## Prototyp 0.1.5
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -36,3 +36,15 @@ Aplikace neodesílá podklad na server. Export obsahuje obrázek půdorysu, prot
 ## Omezení
 
 Pracovní prototyp není projektovou dokumentací ani nástrojem pro ověřený návrh jištění. Značky a výpočtová pravidla musejí být ověřeny podle platných požadavků ČSN a podmínek konkrétní instalace. Ceny a automatický výběr kabelů zatím nejsou součástí aplikace.
+
+
+## Výběr a úpravy otvorů (0.1.5)
+
+- Kliknutím na **Dveře** nebo **Okno** otevřete výběr běžných šířek či zadáte vlastní šířku v celých milimetrech. Najeďte kurzorem na stěnu: náhled ukazuje vzdálenost od začátku osy stěny, šířku otvoru a vzdálenost ke konci osy. Kliknutím otvor vložíte.
+- Po vložení se zobrazí **Vlastnosti prvku** vpravo. Šířku a vzdálenost od obou konců lze upravit a potvrdit tlačítkem **Použít**. U dveří lze také přehodit závěs nebo směr otevření.
+- Dříve vložený otvor vyberete nástrojem **Výběr a úpravy**, kliknutím na položku ve výkazu nebo pravým tlačítkem přímo v otvoru. Pravé tlačítko zobrazí místní nabídku s editorem vlastností.
+- V části **Zobrazení a nastavení** lze změnit krok kreslení (1, 10, 100, 250, 500 nebo 1000 mm, případně bez přichycení) a přichycení k bodům. Při kreslení stěn se přednostně použijí blízké konce existujících stěn nebo jejich osy. Přesně zadaný rozměr má přednost.
+- Nástroj **Kóta** se přichytí ke koncům stěn a okrajům otvorů; modrý bod ukazuje nalezené přichycení. Navázaná kóta se při změně otvoru přepočítá. U samostatného uzavřeného obdélníku jsou automaticky zobrazeny jen dvě hlavní kóty.
+- Projektový formát 4 ukládá body kót a nastavení kroku. Starší formáty 1–3 zůstávají podporovány.
+
+Omezení: vzdálenosti otvorů se měří od konců osy vybraného úseku, nikoli od líce sousední stěny. Přichycení zatím nenahrazuje úplný uzlový model stěn ani automatické řešení složitých křižovatek. Vlastnosti již nakreslených stěn se zatím neupravují.
