@@ -2,7 +2,7 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Prototyp 0.1.11
+## Prototyp 0.1.12
 
 Otevřete [ElektroPlan](https://naskek.github.io/elektroplan/) nebo soubor `index.html` v prohlížeči. Nahrajte obrázek půdorysu, případně jej otočte. Zadejte známý rozměr v milimetrech a klikněte na jeho dva konce. Poté umístěte prvky a nakreslete jednotlivé kabelové trasy. Každá trasa představuje jeden kabel; svislé úseky se zadávají ručně. Výkaz zahrnuje zadanou montážní rezervu. Projekt uložte tlačítkem **Uložit projekt (JSON)**. Tlačítkem **Otevřít projekt** načtete uložený soubor včetně podkladu nebo kresby, měřítka, prvků, kabelových tras, svislých úseků a montážní rezervy. Aplikace ověřuje strukturu a rozměry souboru před nahrazením aktuálního projektu. Rozpracované trasy a nedokončená kalibrace se neukládají. Před zavřením stránky uložte změny ručně.
 
@@ -91,3 +91,9 @@ Před kreslením kabelu vyberte **Druh trasy**: světelná (plná čára), zásu
 Rozšířená pracovní knihovna zahrnuje zásuvku 230 V, dvojzásuvku, trojnásobnou zásuvku, zásuvku 400 V, datové zásuvky RJ45 (1× a 2×), TV zásuvku, rozvodnou krabici, svítidlo, spínače řazení 1, 5, 6, 7 a rozvaděč. Značky jsou inspirovány veřejným [výběrem grafických značek IEC 60617DB](https://www.agenturacas.gov.cz/wp-content/uploads/Graficke-znacky-na-schematech.pdf), zejména str. 100–101, S00457–S00472. Některá doplňková označení a kresba jsou vlastní pracovní konvencí. Nejde o certifikovanou normovou knihovnu. Legenda je dostupná ve výkazu. Vícenásobná zásuvka zatím představuje jeden zakreslený prvek, nikoli automatický výkaz samostatných zásuvkových mechanismů.
 
 Formát projektu 7 ukládá druhy tras a viditelnost vrstev. Starší soubory lze otevřít. Před aktualizací stránky uložte projekt do JSON.
+
+## Výběr, jednotlivé kóty a poloha prvků (0.1.12)
+
+Nástroj **Výběr a úpravy** (V) nahrazuje samostatný nástroj Přesun kót. Kliknutím vyberte prvek nebo kótu, pravým tlačítkem otevřete nabídku vlastností. Kótu lze táhnout kolmo k měřené vzdálenosti, nastavit její odsazení v mm, obnovit polohu nebo ji skrýt. Ruční kótu lze také odstranit; Delete u automatické kóty ji pouze skryje. V nastavení **Zobrazit skryté kóty** obnoví všechny jednotlivě skryté kóty, nikoli vypnuté vrstvy. Změny podporují historii a ukládají se do formátu projektu 8. Předchozí formáty zůstávají čitelné.
+
+Elektroinstalační prvky lze stále umístit prostým kliknutím. Ve vlastnostech lze volitelně zpřesnit souřadnice X a Y v celých milimetrech a natočení značky. V rozpoznané obdélníkové místnosti se souřadnice měří od levého horního rohu místnosti a lze použít **Doprostřed místnosti**. Jinak se měří od počátku pracovní plochy. U obrázkového podkladu je nutné nastavit měřítko. Přesun prvku zatím nemění již zakreslené kabelové trasy; při přesunu bodu shodného s bodem trasy aplikace upozorní na tuto skutečnost. Výšky prvků a automatický výpočet svislých úseků nejsou součástí této verze. Stěny se automaticky neslučují; nežádoucí jednotlivou kótu lze skrýt.
