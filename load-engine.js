@@ -3,7 +3,24 @@ const LoadEngine=(()=>{
 const modes=Object.freeze(Object.assign(Object.create(null),{'1N':1,'2N':2,'2L':2,'3N':3,'3L':3}));
 const phases=['L1','L2','L3'];
 const templates=[
-['fridge','Kuchyň','Lednice',150,'1N','socket'],['hob','Kuchyň','Indukční deska',7200,'2N','fixed'],['oven','Kuchyň','Trouba',3000,'1N','fixed'],['dishwasher','Kuchyň','Myčka',2000,'1N','socket'],['microwave','Kuchyň','Mikrovlnná trouba',1500,'1N','socket'],['hood','Kuchyň','Digestoř',150,'1N','socket'],['kettle','Kuchyň','Rychlovarná konvice',2200,'1N','socket'],['coffee','Kuchyň','Kávovar',1500,'1N','socket'],['washer','Koupelna / WC','Pračka',2200,'1N','socket'],['dryer','Koupelna / WC','Sušička',2500,'1N','socket'],['fan','Koupelna / WC','Ventilátor',20,'1N','fixed'],['boiler','Koupelna / WC','Bojler',2000,'1N','fixed'],['floor','Koupelna / WC','Podlahové vytápění',null,'1N','fixed'],['towel','Koupelna / WC','Topný žebřík',500,'1N','fixed'],['heater','Koupelna / WC','Přímotop',2000,'1N','fixed'],['gas','Ostatní','Kotel',150,'1N','fixed'],['ac','Ostatní','Klimatizace',1000,'1N','fixed'],['ev','Ostatní','Nabíjení elektromobilu',11000,'3N','fixed'],['custom','Ostatní','Vlastní spotřebič',null,'1N','socket']];
+['fridge','Kuchyň','Lednice',150,'1N','socket'],['hob','Kuchyň','Indukční deska',7200,'2N','fixed'],['oven','Kuchyň','Trouba',3000,'1N','fixed'],['dishwasher','Kuchyň','Myčka',2000,'1N','socket'],['microwave','Kuchyň','Mikrovlnná trouba',1500,'1N','socket'],['hood','Kuchyň','Digestoř',150,'1N','socket'],['kettle','Kuchyň','Rychlovarná konvice',2200,'1N','socket'],['coffee','Kuchyň','Kávovar',1500,'1N','socket'],['washer','Koupelna / WC','Pračka',2200,'1N','socket'],['dryer','Koupelna / WC','Sušička',2500,'1N','socket'],['fan','Koupelna / WC','Ventilátor',20,'1N','fixed'],['boiler','Koupelna / WC','Bojler',2000,'1N','fixed'],['floor','Koupelna / WC','Podlahové vytápění',null,'1N','fixed'],['towel','Koupelna / WC','Topný žebřík',500,'1N','fixed'],['heater','Koupelna / WC','Přímotop',2000,'1N','fixed'],["tv","Obývací pokoj","Televizor",120,"1N","socket"],
+["projector","Obývací pokoj","Projektor",250,"1N","socket"],
+["console","Obývací pokoj","Herní konzole",200,"1N","socket"],
+["soundbar","Obývací pokoj","Soundbar / audio",60,"1N","socket"],
+["settop","Obývací pokoj","Set-top box",20,"1N","socket"],
+["desktop","Pracovna / dětský pokoj","Stolní počítač",400,"1N","socket"],
+["laptop","Pracovna / dětský pokoj","Notebook",90,"1N","socket"],
+["monitor","Pracovna / dětský pokoj","Monitor",40,"1N","socket"],
+["printer","Pracovna / dětský pokoj","Tiskárna",300,"1N","socket"],
+["desklamp","Pracovna / dětský pokoj","Stolní lampa (do zásuvky)",10,"1N","socket"],
+["charger","Ložnice / dětský pokoj","Nabíječka telefonu / tabletu",20,"1N","socket"],
+["alarmclock","Ložnice / dětský pokoj","Budík",5,"1N","socket"],
+["babymonitor","Ložnice / dětský pokoj","Dětská chůvička",10,"1N","socket"],
+["purifier","Ložnice / dětský pokoj","Čistička vzduchu",50,"1N","socket"],
+["humidifier","Ložnice / dětský pokoj","Zvlhčovač vzduchu (studený)",30,"1N","socket"],
+["router","Ostatní","Wi-Fi router",15,"1N","socket"],
+["robotvacuum","Ostatní","Nabíjecí stanice robotického vysavače",100,"1N","socket"],
+['gas','Ostatní','Kotel',150,'1N','fixed'],['ac','Ostatní','Klimatizace',1000,'1N','fixed'],['ev','Ostatní','Nabíjení elektromobilu',11000,'3N','fixed'],['custom','Ostatní','Vlastní spotřebič',null,'1N','socket']];
 const defaults=()=>({phaseCount:3,ln:230,ll:400,mainA:25,earthing:'unknown',confirmed:false,freeSocketW:1500,scenario:'all',assignments:{}});
 const num=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
 const optional=(v,min,max)=>v==null||num(v,min,max);
