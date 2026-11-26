@@ -47,11 +47,13 @@ function updateLightingReport(result){
    editorButton(d,'Uložit parametry',()=>{try{const hv=optionalNumber(ht,20),lv=optionalNumber(lx,10000);if(hv!==null&&hv<1)throw Error('Výška musí být nejméně 1 m.');recordChange();name.ceilingHeight=hv;name.targetLux=lv;render()}catch(e){message(e.message)}});
   }else add(d,'Pro vlastní výšku nebo cíl přidejte název místnosti.','muted');
   const unit=lightingField(d,'Tok zvoleného svítidla (lm)',null,10000000);
-  editorButton(d,'Spočítat počet',()=>{try{const v=optionalNumber(unit,10000000);if(v===null)throw Error('Zadejte světelný tok.');message(title+': '+Math.ceil(q.required/v)+' ks celkem; '+Math.ceil(q.deficit/v)+' ks pro doplnění.')}catch(e){message(e.message)}});
+  const qty=lightingField(d,'Počet nových světelných bodů',null,100);qty.step='1';
+  editorButton(d,'Spočítat počet',()=>{try{const v=optionalNumber(unit,10000000);if(v===null)throw Error('Zadejte světelný tok.');const count=Math.ceil(q.deficit/v);qty.value=count||'';message(title+': '+Math.ceil(q.required/v)+' ks celkem; '+count+' ks pro doplnění.')}catch(e){message(e.message)}});
+  editorButton(d,'Rozmístit nové body',()=>{try{const count=optionalNumber(qty,100),flux=optionalNumber(unit,10000000);if(!Number.isInteger(count))throw Error('Zadejte počet 1–100.');const pts=proposeLightPoints(room,result,count,ls.map(a=>a.p));if(pts.length!==count)throw Error('Nelze navrhnout rozmístění. Umístěte body ručně.');recordChange();for(const p of pts)items.push({id:++seq,type:'light',p,lumens:flux,watts:null});render();message('Přidáno '+count+' svítidel; stávající body se nezměnily.')}catch(e){message(e.message)}});
  }
  for(const n of names.filter(a=>!result.at?.(a.p)))add(host,n.name+': chybí uzavřená plocha.','warn');
  const unassigned=lights.filter(a=>!result.at?.(a.p)).length;if(unassigned)add(host,unassigned+' svítidel mimo uzavřené místnosti.');
- add(host,'Orientační průměr; bez ověření rovnoměrnosti a normových hodnot.','muted');
+ add(host,'Orientační průměr a geometrické rozmístění; bez ověření rovnoměrnosti, úhlu vyzařování a normových hodnot.','muted');
 }
 function syncMode(){
   $('manualTools').hidden=!manual;$('areaReport').hidden=!manual;$('imageTools').hidden=manual||!img;
@@ -184,7 +186,43 @@ function dimensionDragOffset(a,b,p,initial,start){
   const d=dist(a,b);if(!d)return initial;
   return initial+((p.x-start.x)*(-(b.y-a.y)/d)+(p.y-start.y)*(b.x-a.x)/d);
 }
+function closeVisualWallGaps(segs){
+ const horizontal=t=>Math.abs(t.a.y-t.b.y)<1e-7,vertical=t=>Math.abs(t.a.x-t.b.x)<1e-7;
+ if(segs.some(t=>!horizontal(t)&&!vertical(t)))return segs;
+ const bridges=[];
+ for(const g of findWallGaps(segs,10)){
+  const source=segs.find(t=>t.id===g.id&&t.side===g.side);
+  if(!source)continue;
+  const target=segs.find(t=>t!==source&&horizontal(source)!==horizontal(t)&&distanceToSegment(g.target,t.a,t.b)<1e-6&&g.distance<=t.th/2+1e-7);
+  if(target)bridges.push({id:source.id,side:source.side,a:g.p,b:g.target,th:source.th});
+ }
+ return bridges.length?[...segs,...bridges]:segs;
+}
+function proposeLightPoints(room,result,n,existing=[]){
+ if(!Number.isInteger(n)||n<1||n>100)return [];
+ const xx=room.edges.filter(e=>e.axis==='v').map(e=>e.fixed),yy=room.edges.filter(e=>e.axis==='h').map(e=>e.fixed);
+ if(!xx.length||!yy.length)return [];
+ const x=Math.min(...xx),X=Math.max(...xx),y=Math.min(...yy),Y=Math.max(...yy),dx=X-x,dy=Y-y;if(!(dx>0&&dy>0))return [];
+ const candidates=[],center={x:(x+X)/2,y:(y+Y)/2},inRoom=p=>result.at(p)===room;
+ if(!existing.length&&room.edges.length===4){
+   let rows=1,best=Infinity;
+   for(let j=1;j<=n;j++){const cols=n/j,score=Math.abs(Math.log((dx/cols)/(dy/j)))+.35*(Math.ceil(cols)*j-n);if(score<best){best=score;rows=j}}
+   const points=[];for(let j=0;j<rows;j++){const count=Math.floor(n/rows)+(j<n%rows?1:0);for(let i=0;i<count;i++)points.push({x:x+dx*(i+.5)/count,y:y+dy*(j+.5)/rows})}
+   if(points.length===n&&points.every(inRoom))return points;
+ }
+ const count=Math.min(65,Math.max(18,Math.ceil(Math.sqrt(n)*5)));
+ for(let j=0;j<count;j++)for(let i=0;i<count;i++){const p={x:x+dx*(i+.5)/count,y:y+dy*(j+.5)/count};if(inRoom(p))candidates.push(p)}
+ const boundaryDistance=p=>Math.min(...room.edges.map(e=>e.axis==='h'?distanceToSegment(p,{x:e.lo,y:e.fixed},{x:e.hi,y:e.fixed}):distanceToSegment(p,{x:e.fixed,y:e.lo},{x:e.fixed,y:e.hi})));
+ const available=candidates.map(p=>({p,clearance:boundaryDistance(p)})),selected=[],occupied=existing.map(p=>({...p}));
+ while(selected.length<n&&available.length){let best=-1,score=-Infinity;
+   for(let i=0;i<available.length;i++){const {p,clearance}=available[i],d=occupied.length?Math.min(...occupied.map(q=>dist(p,q))):Infinity;const v=Math.min(clearance*1.6,d)-dist(p,center)*.0001;if(v>score){score=v;best=i}}
+   if(best<0||score<=0)break;
+   const p=available.splice(best,1)[0].p;selected.push(p);occupied.push(p);
+ }
+ return selected.length===n?selected:[];
+}
 function roomAreas(segs){
+  segs=closeVisualWallGaps(segs);
   if(!segs.length)return {rooms:[],reason:''};
   if(segs.some(s=>Math.abs(s.a.x-s.b.x)>1e-7&&Math.abs(s.a.y-s.b.y)>1e-7))return {rooms:[],reason:'Automatický výpočet zatím podporuje pouze pravoúhlé stěny.'};
   const round=v=>Math.round(v*1e6)/1e6;
