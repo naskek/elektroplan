@@ -21,12 +21,12 @@ const templates=[
 ["router","Ostatní","Wi-Fi router",15,"1N","socket"],
 ["robotvacuum","Ostatní","Nabíjecí stanice robotického vysavače",100,"1N","socket"],
 ['gas','Ostatní','Kotel',150,'1N','fixed'],['ac','Ostatní','Klimatizace',1000,'1N','fixed'],['ev','Ostatní','Nabíjení elektromobilu',11000,'3N','fixed'],['custom','Ostatní','Vlastní spotřebič',null,'1N','socket']];
-const defaults=()=>({phaseCount:3,ln:230,ll:400,mainA:25,earthing:'unknown',confirmed:false,freeSocketW:1500,scenario:'all',assignments:{}});
+const defaults=()=>({phaseCount:3,ln:230,ll:400,mainA:25,earthing:'unknown',confirmed:false,freeSocketW:1500,demandFactor:1,scenario:'all',assignments:{}});
 const num=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
 const optional=(v,min,max)=>v==null||num(v,min,max);
 const choices=(n,count)=>{const out=[];function go(a,start){if(a.length===n){out.push(a);return}for(let i=start;i<count;i++)go([...a,i],i+1)}go([],0);return out};
 const validPhases=(p,n=3)=>Array.isArray(p)&&p.length<=n&&p.every(x=>Number.isInteger(x)&&x>=0&&x<n)&&new Set(p).size===p.length;
-function validSettings(s){return !!s&&[1,3].includes(s.phaseCount)&&num(s.ln,100,300)&&num(s.ll,100,500)&&num(s.mainA,1,1000)&&['unknown','TN-C','TN-S','TN-C-S','TT','IT'].includes(s.earthing)&&typeof s.confirmed==='boolean'&&num(s.freeSocketW,0,100000)&&['all','cooking','laundry','heating'].includes(s.scenario)&&s.assignments&&typeof s.assignments==='object'&&!Array.isArray(s.assignments)&&Object.entries(s.assignments).every(([k,v])=>/^[rap]:\d+$/.test(k)&&validPhases(v,3)&&v.length>0)}
+function validSettings(s){return !!s&&[1,3].includes(s.phaseCount)&&num(s.ln,100,300)&&num(s.ll,100,500)&&num(s.mainA,1,1000)&&['unknown','TN-C','TN-S','TN-C-S','TT','IT'].includes(s.earthing)&&typeof s.confirmed==='boolean'&&num(s.freeSocketW,0,100000)&&(s.demandFactor===undefined||num(s.demandFactor,0,1))&&['all','cooking','laundry','heating'].includes(s.scenario)&&s.assignments&&typeof s.assignments==='object'&&!Array.isArray(s.assignments)&&Object.entries(s.assignments).every(([k,v])=>/^[rap]:\d+$/.test(k)&&validPhases(v,3)&&v.length>0)}
 function validAppliance(a){const n=modes[a.mode];return !!n&&templates.some(t=>t[0]===a.template)&&typeof a.name==='string'&&a.name.trim().length>0&&a.name.length<=80&&['socket','fixed'].includes(a.connectionType)&&['template','estimate','nameplate'].includes(a.source)&&['auto','requested','confirmed'].includes(a.dedicated)&&optional(a.powerW,0.01,1000000)&&optional(a.pf,.01,1)&&optional(a.limitW,.01,1000000)&&optional(a.startA,.01,10000)&&optional(a.area,.01,100000)&&optional(a.density,.01,100000)&&optional(a.connectionPointId,1,Number.MAX_SAFE_INTEGER)&&(a.connectionPointId==null||Number.isSafeInteger(a.connectionPointId))&&(a.branchW==null||(Array.isArray(a.branchW)&&a.branchW.length===n&&a.branchW.every(v=>num(v,0,1000000))&&['1N','2N','3N'].includes(a.mode)))&&(a.nameplateA==null||(Array.isArray(a.nameplateA)&&a.nameplateA.length===n&&a.nameplateA.every(v=>num(v,0,10000))))&&validPhases(a.phases)&&(!a.phases.length||a.phases.length===n)&&a.factors&&['cooking','laundry','heating'].every(k=>num(a.factors[k],0,1))}
 function makeAppliance(key){const t=templates.find(x=>x[0]===key)||templates.at(-1);return {template:t[0],name:t[2],powerW:t[3],mode:t[4],connectionType:t[5],source:'template',pf:null,limitW:null,startA:null,branchW:null,nameplateA:null,phases:[],connectionPointId:null,dedicated:'auto',area:null,density:t[0]==='floor'?150:null,factors:{cooking:1,laundry:1,heating:1}}}
 function calculate(a,s){
@@ -45,11 +45,12 @@ function calculate(a,s){
  if(a.nameplateA&&nominal&&a.nameplateA.some((v,i)=>Math.abs(v-nominal[i])>Math.max(.2,nominal[i]*.1)))warn('warning','Štítkový proud neodpovídá odhadu z příkonu; použit štítkový proud.');
  if(power===null)warn('missing','Neznámý příkon.');
  if(!currents)warn('missing','Neznámý proud.');
- const factor=s.scenario==='all'?1:(a.factors?.[s.scenario]??1);
+ const factor=(s.scenario==='all'?1:(a.factors?.[s.scenario]??1))*(s.demandFactor??1);
  // Štítkové proudy jsou nadřazené; limit příkonu se zohlední pouze u potvrzeného údaje.
  let limit=1;if(a.limitW!=null){if(a.source!=='nameplate')warn('warning','Limit příkonu není potvrzen, nepoužit.');else if(power>0)limit=Math.min(1,a.limitW/power);else warn('missing','Limit nelze použít bez příkonu.')}
  if(a.nameplateA&&limit<1){warn('warning','Štítkový proud zachován i při omezení příkonu.');}
- return {installedW:power,designW:power===null?null:power*factor*limit,currents:currents?.map(v=>v*factor*(a.nameplateA?1:limit))??null,diagnostics};
+ const fullCurrents=currents?.map(v=>v*(a.nameplateA?1:limit))??null;
+ return {installedW:power,designW:power===null?null:power*factor*limit,currents:fullCurrents?.map(v=>v*factor)??null,fullCurrents,diagnostics};
 }
 const socketTypes=['socket','socket2','socket3','socket400','outlet'];
 const slots=a=>a.type==='socket2'?2:a.type==='socket3'?3:1;
@@ -84,10 +85,11 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null,circuits=
  // Odhad jednou na okruh: při volných zdířkách pouze doplnění do zadaného výkonového minima.
  for(const a of items.filter(a=>socketTypes.includes(a.type)&&a.type!=='outlet')){
   const g=groupForPoint(a);if((used.get(a.id)||0)>slots(a))add(g,'error','Více spotřebičů než zdířek.',a.id);
-  if((used.get(a.id)||0)<slots(a)){if(a.type==='socket400')add(g,'missing','Volná zásuvka 400 V: neznámá zátěž.',a.id);else g.free=true}
+  if((used.get(a.id)||0)<slots(a)){if(a.type==='socket400')add(g,'missing','Volná zásuvka 400 V: neznámá zátěž.',a.id);else if(circuits===null||g.circuitId!=null&&g.kind==='socket')g.free=true;else g.unplannedFree=true}
  }
  for(const g of groups){
-  if(g.free){const known=g.loads.reduce((n,a)=>n+(a.designW??0),0),residual=Math.max(0,s.freeSocketW-known);g.loads.push({id:null,name:'Rezerva volných zásuvek',n:1,mode:'1N',locked:[],installedW:0,designW:residual,currents:[residual/s.ln]});add(g,'warning','Volné zásuvky: doplnění do odhadu '+s.freeSocketW+' W na okruh.')}
+  if(g.unplannedFree)add(g,'missing','Volná zásuvka bez navrženého okruhu: rezerva zatím nezapočtena.');
+  if(g.free){const known=g.loads.reduce((n,a)=>n+(a.designW??0),0),residual=Math.max(0,s.freeSocketW-known);g.loads.push({id:null,reserve:true,name:'Rezerva volných zásuvek',n:1,mode:'1N',locked:[],installedW:0,designW:residual,currents:[residual/s.ln]});add(g,'warning','Volné zásuvky: doplnění do odhadu '+s.freeSocketW+' W na okruh.')}
   g.installedW=g.loads.reduce((n,a)=>n+(a.installedW??0),0);g.designW=g.loads.reduce((n,a)=>n+(a.designW??0),0);
   g.unknown=g.loads.some(a=>a.installedW==null||a.currents==null)||g.diagnostics.some(d=>d.level==='missing');
   g.n=Math.max(1,...g.loads.map(a=>a.n));const ns=new Set(g.loads.map(a=>a.n));if(ns.size>1)add(g,'error','Smíšený počet fází v okruhu; vyžaduje ověření zapojení.');
@@ -112,7 +114,18 @@ function aggregate(items,s,lightPower=a=>a.watts??null,length=()=>null,circuits=
  const exact=combinations<=50000&&ordered.length<=100;
  if(exact){let best=total.slice(),bestChoices=ordered.map(g=>g.candidates.find(c=>c.phases===g.phases));const chosen=[];function search(i,sum){if(i===ordered.length){if(cmp(score(sum),score(best))<0){best=sum;bestChoices=chosen.slice()}return}const g=ordered[i];if(!g.candidates.length){chosen[i]=null;search(i+1,sum);return}for(const c of g.candidates){chosen[i]=c;search(i+1,plus(sum,c.amps))}}search(0,[0,0,0]);total=best;for(let i=0;i<ordered.length;i++)if(bestChoices[i]){ordered[i].phases=bestChoices[i].phases;ordered[i].amps=bestChoices[i].amps}}
  if(total.slice(0,s.phaseCount).some(x=>x>s.mainA+1e-8))add(null,'error','Překročen limit přívodu. Změňte scénář nebo rozdělení okruhů; výsledek velkých projektů není důkaz nemožnosti jiné kombinace.');
- return {version:1,optimization:exact?'exhaustive':'heuristic',method:'Součet velikostí proudů, konzervativní odhad; bez výpočtu N.',settings:s,phaseA:total,reserveA:total.map(v=>s.mainA-v),imbalanceA:Math.max(...total.slice(0,s.phaseCount))-Math.min(...total.slice(0,s.phaseCount)),installedW:groups.reduce((n,g)=>n+g.installedW,0),designW:groups.reduce((n,g)=>n+g.designW,0),groups:groups.map(({candidates,...g})=>g),diagnostics:diag,incomplete:diag.some(d=>d.level!=='warning')||groups.some(g=>g.unknown)};
+ const breakdown={knownA:[0,0,0],fullA:[0,0,0],reserveA:[0,0,0],knownW:0,reserveW:0,unassignedFree:groups.filter(g=>g.unplannedFree).length,unallocated:0};
+ for(const g of groups){
+  g.knownW=g.loads.filter(a=>!a.reserve).reduce((n,a)=>n+(a.designW??0),0);
+  g.socketReserveW=g.loads.filter(a=>a.reserve).reduce((n,a)=>n+(a.designW??0),0);
+  breakdown.knownW+=g.knownW;breakdown.reserveW+=g.socketReserveW;
+  if(!g.phases.length&&g.loads.length)breakdown.unallocated++;
+  for(const a of g.loads)for(const [k,i] of g.phases.entries()){
+   if(a.reserve)breakdown.reserveA[i]+=a.currents?.[k]??0;
+   else{breakdown.knownA[i]+=a.currents?.[k]??0;breakdown.fullA[i]+=a.fullCurrents?.[k]??0}
+  }
+ }
+ return {version:1,breakdown,optimization:exact?'exhaustive':'heuristic',method:'Součet velikostí proudů, konzervativní odhad; bez výpočtu N.',settings:s,phaseA:total,reserveA:total.map(v=>s.mainA-v),imbalanceA:Math.max(...total.slice(0,s.phaseCount))-Math.min(...total.slice(0,s.phaseCount)),installedW:groups.reduce((n,g)=>n+g.installedW,0),designW:groups.reduce((n,g)=>n+g.designW,0),groups:groups.map(({candidates,...g})=>g),diagnostics:diag,incomplete:diag.some(d=>d.level!=='warning')||groups.some(g=>g.unknown)};
 }
 
 // Kapacita připojovacích míst; nehodnotí jištění, umístění ani současnost.
