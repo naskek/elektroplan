@@ -30,7 +30,13 @@ const CircuitEngine=(()=>{
    if(applianceOwners.has(a.id)||assigned.has(a.id))continue;
    if(compatible(a,map.get(a.connectionPointId))){assigned.set(a.id,a.connectionPointId);continue}
    if(a.connectionPointId!=null||roomOf(a)==null)continue;
-   const candidates=items.filter(p=>compatible(a,p)&&!pointOwners.has(p.id)&&!reserved.has(p.id)&&roomOf(p)===roomOf(a)&&(used.get(p.id)||0)<capacity(p)&&(!isDedicated(a)||!used.get(p.id)));
+   const candidates=items.filter(p=>{
+     if(!compatible(a,p)||reserved.has(p.id)||roomOf(p)!==roomOf(a)||(used.get(p.id)||0)>=capacity(p))return false;
+     const owner=retained.find(c=>c.id===pointOwners.get(p.id));
+     if(owner&&owner.kind!==pointKind(p))return false;
+     if(isDedicated(a)&&(used.get(p.id)||owner&&owner.pointIds.filter(id=>pointKind(map.get(id))===owner.kind).length!==1))return false;
+     return true;
+   });
    candidates.sort((p,q)=>Math.hypot(p.p.x-a.p.x,p.p.y-a.p.y)-Math.hypot(q.p.x-a.p.x,q.p.y-a.p.y)||p.id-q.id);
    if(candidates.length){const p=candidates[0];assigned.set(a.id,p.id);used.set(p.id,(used.get(p.id)||0)+1);links.push({applianceId:a.id,pointId:p.id});if(isDedicated(a))reserved.add(p.id)}
   }
