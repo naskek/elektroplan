@@ -1,3 +1,36 @@
+# Ověření ElektroPlan 0.3.0
+
+Datum: 26. 11. 2026. Výchozí main: `5abac056c213f00b5bd2d7e4a9677db20d039373` (0.2.1). Původní ověřená verze je zachována v historii. Otevřené požadavky #1, #3 a #4 zůstávají širším backlogem; toto je minimální svislý scénář zakázky, nikoli jejich plné dokončení.
+
+## Implementace a UX
+
+- Tři horní kroky: Půdorys, Elektroinstalace, Zakázka. V prvním kroku jsou i elektrické potřeby; není potřeba předem vytvářet okruhy. Dveře neotevírají povinný dialog šířky. Přesné rozměry jsou volitelné, kóty a mezery ve stěnách jsou v novém plánu standardně skryté. Příkony spotřebičů na plánu jsou skryté, dokud nejsou zapnuta označení.
+- Počet při kliknutí vloží více samostatných prvků jedním undo krokem; překrytí je označeno ×N. Spotřebiče při vložení ani v hlavním výpočtu nedostávají automatickou fyzickou vazbu k zásuvce.
+- Dvě akce od vstupu do výpočtu k uložení návrhu: Orientačně spočítat a Použít návrh. Náhled obsahuje okruhy, fáze, délky a rozvaděč bez potvrzení po jednotlivých okruzích. Ruční okruhy, trasy a fixace se zachovají. Návrh se zastaralým vstupem nelze použít. Pokročilá správa původního prototypu zůstává dostupná.
+- Materiál i práce mají jednotkové ceny uživatele, neznámá množství a neúplné délky. Neznámá cena se odlišuje od výslovné nuly. CSV používá stejný model jako UI. Export obsahuje předpoklady a upozornění na neúplný rozsah.
+- JSON v15, IndexedDB, ochrana revizí a import v1–v14 zachovány. Rozpočtové nastavení a ceny jsou volitelné pole `estimateSettings`; návrhy, ceny a ruční opravy lze vrátit. Při exportu ve starší aplikaci se nové volitelné rozpočtové údaje ztratí.
+
+## Provedené místní kontroly
+
+- **58 výpočtových kontrol:** původních 45 a 13 nových pro potřebu místnosti bez falešného připojení, oddělení samostatných okruhů, společné trasy 3×10 m, svislé části a rezervu, zachování ručních tras, neznámé měřítko, neověřené světelné zapojení, mechanismy a krabice, prostor v oddělených skříních, neznámé versus nulové ceny a neúplné součty.
+- **23 scénářů ve skutečném Chrome:** původních 18 upravených pro novou navigaci a 5 nových. Prázdný plán → místnost / dveře / spotřebiče / zásuvky / spínač / světlo / rozvaděč → společný náhled → uložení → vlastní cena → CSV → F5 → v15 reimport. Bez vynucených nativních potvrzení při rozmisťování a výpočtu. Výběr spotřebiče používá jeden HTML dialog; fyzická vazba není povinná.
+- Nové browser regrese: atomické undo návrhu a počtu prvků, ceny s undo/redo a po F5, opakovaný návrh bez duplikace, ruční kabel a fixace fází, odmítnutí zastaralého návrhu, neplatné nastavení odhadu a nezakryté nominální přetížení při 10% současnosti.
+- Šířky 390, 768, 1024 a 1440 px: bez vodorovného přetečení celého dokumentu. Tabulky mají vlastní posun. Reálné snímky syntetického plánu, společného náhledu a oceněné části byly vizuálně zkontrolovány. Po kontrole odstraněny opakující se dlouhé popisky cen; podklady a technické detaily jsou sbalené.
+- Soukromý projekt nalezený v místní ignorované složce předchozího ověření byl lokálně importován, obnoven po F5 a zpracován novým návrhem. Zachovány prvky, existující trasy a vazby; ověřeno undo návrhu. Jeho JSON, geometrie ani snímky nejsou součástí změn ani CI.
+- Konzole běžných scénářů bez chyb; očekávané chyby obnovy a kolize revizí jsou povoleny pouze v odpovídajících původních regresích. Síťové nasazení a CI se ověřují samostatně po push.
+
+## Přijatá zjednodušení a meze
+
+- Bez fyzické trasy jde o součet hrubých vzdáleností značek, ne průchod zdmi / zónami. Sdílená drážka těchto odhadů je neznámá. Souběhy jsou pouze přesně shodné vodorovné a svislé části; svislé souběhy, blízké paralelní a diagonální úseky se neslučují.
+- Předpoklad konců 1 m/okruh, montážní rezerva 10 % jednou; svislé vedení standardně neznámé. Příkon z lumenů používá nastavenou účinnost. Šablony nejsou štítkové hodnoty, při chybějícím účiníku se používá 1 a vícefázové větve bez rozpisu jsou symetrické. Úplný výpočet osvětlení zůstává v původním editoru.
+- Varianta rozvaděče s jedním RCBO na okruh je prostorový odhad. Neprobíhá hospodářské porovnání variant společných RCD/RCBO, detailní DIN konstruktor ani konečný výběr ochran. Chybějící síť, uložení, seskupení, teplota, zkratové poměry / impedance, úbytek napětí a údaje zařízení brání ověřenému výběru ochrany a průřezů.
+- Ovládání světel vyžaduje skutečné zapojení; odhad přívodu nesmí být vydáván za hotovou topologii. Ruční trasy se automaticky nedoplňují ani nepřepisují, neúplné úseky zůstávají chybějící.
+- Přístrojové krabice jsou odhad 1 na mechanismus. Rámečky, SPD, rozvaděčové příslušenství, spotřební materiál, typ podkladu a dodatečné práce je třeba doplnit; vlastní řádky rozpočtu a finální nabídka nejsou v tomto minimu implementovány. Ceny jsou vlastní v Kč bez automatického DPH nebo katalogových cen.
+- Skupina ×N ukládá jednotlivé kusy na stejném místě jako potřebu místnosti; před přesnou ruční trasou je lze rozmístit. Množství není prostorový návrh montáže.
+- Ověření UX provedl autor změny podle reálných snímků a ovládání v Chrome; neproběhl nezávislý test s dalším elektrikářem. Nebyl testován fyzický dotykový telefon, jiné prohlížeče ani chování všech historických souborů.
+
+---
+
 # Ověření ElektroPlan 0.2.1
 
 Datum: 26. 11. 2026. Výchozí main: `8923213b52a22ddad4e0772ed2a1885ef32cb89f`.

@@ -2,17 +2,23 @@
 
 Jednoduchý nástroj pro předběžné výkazy elektroinstalačního materiálu a rozpočty bytových elektroinstalací.
 
-## Aktuální verze 0.2.1 – stabilizace
+## Aktuální verze 0.3.0 – předběžná zakázka ve třech krocích
 
-Opraveno vyvažování nerovnoměrných větví 2N/3N, doplňování připojení spotřebičů v již navržených okruzích, uchování vlastního typu kabelu a ochrana rozpracované kresby při změně nástroje. Výpočet a rozvaděč již nemají dvě shodné sady tlačítek. Formát projektu zůstává JSON v15. Nejde o ověřený projekt elektroinstalace.
+1. **01 Půdorys:** nakreslete místnosti, případně je pojmenujte, přidejte dveře a rozvaděč. Umístěte značky spotřebičů, zásuvek, spínačů a světel do místností. Přesné rozměry a fyzické připojení spotřebičů jsou volitelné. Pole **Počet při kliknutí** vloží více kusů jako jednu operaci; na plánu se překrývající potřeby zobrazí se značkou ×N. Každý kus má vlastní ID ve v15 a lze ho později samostatně přesunout. Dveře používají pracovní šířku 800 mm, kterou můžete změnit.
+2. **02 Elektroinstalace:** **Orientačně spočítat → Použít návrh**. Jeden společný náhled obsahuje okruhy, fáze, známé nominální maximum i odhad současnosti, délky kabelů a prostorový návrh rozvaděče. Automatické přiřazení spotřebiče k nejbližší zásuvce se v tomto postupu neprovádí. Okruhy, kabely, fixace fází a délkové odhady lze upravit přímo v přehledu; pokročilé editory zůstávají v bočním panelu. **Upravit trasy na plánu** otevře původní editor uvnitř stejného kroku.
+3. **03 Zakázka:** souhrnný materiál a měřitelné práce. Zadejte vlastní jednotkové ceny v Kč a stáhněte CSV. Neznámé ceny zůstávají prázdné; oceněná část je mezisoučet, nikoli automaticky úplná cena zakázky. Spotřebiče nejsou automaticky nakupovanou technikou. Dvojzásuvky se počítají podle počtu mechanismů; krabice jsou samostatný předpoklad.
 
-Dokončené prvky se automaticky ukládají do IndexedDB tohoto prohlížeče. Nedokončené prvky a trasy jsou pouze v paměti; export, opuštění stránky a změna nástroje před jejich ztrátou varují. JSON je přenosná záloha. Starší oddíly níže popisují vývoj prototypu; aktuální ověření a jeho hranice jsou v [záznamu stabilizace](STABILIZATION.md).
+Nezakreslené kabely používají hrubé pravoúhlé vzdálenosti značek od rozvaděče, bez vytvoření fyzické cesty. Výchozí přídavek na konce je **1 m na okruh**, montážní rezerva **10 %** jednou. Svislé vedení je zpočátku neznámé, lze zadat společně nebo po okruzích. Vlastní svislé úseky existujících kabelů se nepřepisují a další přídavek se na ně nepoužije. Přesné vodorovné a svislé souběhy zakreslených tras uvádějí délku společného úseku a počet kabelů; pro nezakreslené odhady zůstává společná stavební trasa neznámá. Ovládání světel není automaticky ověřenou topologií ani určeným počtem žil.
+
+Rozvaděč je prostorová varianta s jedním RCBO na okruh (2/4 DIN), hlavním vypínačem (2/4 DIN), 20% požadavkem na volné místo a zaokrouhlením skříně po 12 DIN. To je rozpočtový předpoklad. Nominály a typ ochrany, SPD, příslušenství, rámečky a spotřební materiál vyžadují doplnění. Nejde o ověřený návrh jištění, průřezů nebo projektovou dokumentaci.
+
+Formát projektu zůstává **JSON v15**, s volitelným `estimateSettings` pro předpoklady, ruční délkové opravy a jednotkové ceny. Dokončené prvky se automaticky ukládají do IndexedDB. Návrh, ceny a opravy délek podporují undo/redo; rozpracované body zůstávají pouze v paměti. Projekty v1–v14 se nadále načítají. Starší verze aplikace nové volitelné rozpočtové údaje při opětovném exportu nezachová. Historické poznámky níže popisují dřívější prototyp; aktuální ověření a hranice jsou v [záznamu stabilizace](STABILIZATION.md).
 
 ### Regresní testy
 
-`npm ci` a `npm test` spustí testy výpočtového jádra. `npm run test:e2e` spustí skutečný Chrome nad lokální aplikací; Chrome musí být nainstalován. Alternativně nainstalujte prohlížeč příkazem `npx playwright install chromium` a nastavte proměnnou prostředí `PLAYWRIGHT_CHANNEL=chromium`. Testovací server používá pouze `127.0.0.1:4173` a zpřístupňuje jen tři soubory aplikace.
+`npm ci` a `npm test` spustí testy výpočtových jader a rozpočtu. `npm run test:e2e` spustí skutečný instalovaný Chrome; alternativně `npx playwright install chromium` a `PLAYWRIGHT_CHANNEL=chromium`. Testovací server zpřístupňuje jen pět veřejných souborů aplikace na `127.0.0.1:4173`; pro izolovaný běh lze nastavit `ELEKTROPLAN_TEST_PORT`.
 
-Veřejné testovací projekty mají umělou geometrii. Volitelný test soukromého projektu se zapne proměnnou `ELEKTROPLAN_PRIVATE_PROJECT` s cestou k vlastnímu JSON; soubor patří do ignorované složky `.private/` nebo mimo repozitář. Výsledky a stopy prohlížeče jsou také ignorovány. GitHub Actions spouští jádro a veřejné E2E při změně kódu.
+Veřejné projekty mají syntetickou geometrii. Soukromý test se zapne pouze místně přes `ELEKTROPLAN_PRIVATE_PROJECT` s cestou k JSON mimo repo nebo v ignorované `.private/`. Data, screenshots a traces z testů patří do ignorovaných složek. GitHub Actions spouští jádro a veřejné E2E při push; soukromý projekt se do CI neposílá.
 
 ## Prototyp 0.1.18
 
